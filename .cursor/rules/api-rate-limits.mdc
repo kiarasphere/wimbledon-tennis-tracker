@@ -1,0 +1,49 @@
+---
+description: Enforce API rate limits (3 req/s, 30 req/min) and design to minimize calls
+alwaysApply: true
+---
+
+# API Rate Limits
+
+All external API usage is capped at **3 requests/second** and **30 requests/minute**. Design every feature around these limits — do not treat them as an afterthought.
+
+## Hard rules
+
+- **Single gateway**: Route all API calls through one client module that enforces rate limiting (token bucket or sliding window). Never call `fetch` directly from components or hooks.
+- **Queue, don't burst**: Serialize or batch requests. Reject or delay calls that would exceed limits rather than firing and hoping.
+- **Cache aggressively**: Store responses in memory (and persist stable data to localStorage/IndexedDB). Use stale-while-revalidate — serve cached data immediately, refresh in the background only when the budget allows.
+- **One fetch per screen**: Load data at the route/page level, not per child component. Never let N components each trigger their own request for the same resource.
+- **Debounce user-driven lookups**: Search, filters, and live updates must wait (≥300ms debounce) and cancel in-flight requests on new input.
+- **Poll sparingly**: Prefer WebSockets or long-lived subscriptions if available. If polling is required, use the minimum interval that still respects the budget (e.g. one combined poll, not per-widget polls).
+
+## Before adding a new API call, ask
+
+1. Can this data come from an existing cached response?
+2. Can multiple endpoints be replaced by one broader request?
+3. Will this run on mount in more than one place? If yes, lift it up and share the result.
+4. Is this triggered by rapid user input? If yes, debounce and dedupe.
+
+## Examples
+
+```ts
+// ❌ BAD: each component fetches independently
+function DriverCard({ id }) {
+  const driver = useFetch(`/drivers/${id}`);
+}
+
+// ✅ GOOD: parent fetches once, children receive data
+function RacePage() {
+  const { drivers } = useRaceData(raceId); // single cached request
+  return drivers.map((d) => <DriverCard key={d.id} driver={d} />);
+}
+```
+
+```ts
+// ❌ BAD: unthrottled search fires a request per keystroke
+onChange={(q) => fetch(`/search?q=${q}`)}
+
+// ✅ GOOD: debounced, deduped, goes through rate-limited client
+onChange={(q) => apiClient.search(q, { debounceMs: 400 })}
+```
+
+When implementing the API client, expose remaining budget or backoff state so the UI can show a loading/retry state instead of silently failing.

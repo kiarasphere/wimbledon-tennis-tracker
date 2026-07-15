@@ -1,0 +1,55 @@
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import { BrandMark } from './components/BrandMark'
+import { AtpRankings } from './pages/AtpRankings'
+import { WtaRankings } from './pages/WtaRankings'
+import { CountryRankings } from './pages/CountryRankings'
+import { PlayerProfile } from './pages/PlayerProfile'
+import { WimbledonResults } from './pages/WimbledonResults'
+import { FinalMatch } from './pages/FinalMatch'
+import './App.css'
+
+function App() {
+  return (
+    <div className="app-shell">
+      <header className="top-nav">
+        <div className="brand">
+          <BrandMark className="brand-mark" />
+          <div>
+            <p className="brand-title">Tennis Tracker</p>
+            <p className="brand-subtitle">Data as of 15 July 2026</p>
+          </div>
+        </div>
+        <nav className="nav-links" aria-label="Primary">
+          <NavLink to="/atp" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            ATP
+          </NavLink>
+          <NavLink to="/wta" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            WTA
+          </NavLink>
+          <NavLink to="/countries" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Countries
+          </NavLink>
+          <NavLink to="/results" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Wimbledon
+          </NavLink>
+          <NavLink to="/final" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Final
+          </NavLink>
+        </nav>
+      </header>
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Navigate to="/atp" replace />} />
+          <Route path="/players/:playerId" element={<PlayerProfile />} />
+          <Route path="/atp" element={<AtpRankings />} />
+          <Route path="/wta" element={<WtaRankings />} />
+          <Route path="/countries" element={<CountryRankings />} />
+          <Route path="/results" element={<WimbledonResults />} />
+          <Route path="/final" element={<FinalMatch />} />
+        </Routes>
+      </main>
+    </div>
+  )
+}
+
+export default App

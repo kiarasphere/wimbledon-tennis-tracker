@@ -1,0 +1,46 @@
+---
+description: Prefer boring, simple, explicit architecture over clever abstractions in the React frontend
+globs: **/*.{ts,tsx,jsx}
+alwaysApply: false
+---
+
+# React: Boring, Simple, Explicit Architecture
+
+Favor code that is obvious to read over code that is clever to write. Optimize for the next person debugging at 2am.
+
+## Principles
+
+- **Explicit over implicit**: Pass props and dependencies directly. Avoid hidden magic (deep context chains, global singletons, dynamic key lookups).
+- **Duplicate before you abstract**: Wait for 3+ real usages before extracting a shared abstraction. A little copy-paste is cheaper than the wrong abstraction.
+- **Flat over nested**: Prefer straightforward data flow and shallow component trees over layers of wrappers, HOCs, and render props.
+- **Local over global**: Keep state as close to where it's used as possible. Reach for global state only when sharing is genuinely needed.
+- **Standard over custom**: Use built-in React/language features and well-known libraries before inventing framework-like helpers.
+
+## Examples
+
+```tsx
+// ❌ BAD: clever generic abstraction for one use case
+const useResource = <T,>(cfg: ResourceConfig<T>) => { /* 60 lines of generic magic */ };
+const user = useResource(userResourceFactory(buildUserConfig(opts)));
+
+// ✅ GOOD: explicit and obvious
+function useUser(userId: string) {
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    getUser(userId).then(setUser);
+  }, [userId]);
+  return user;
+}
+```
+
+```tsx
+// ❌ BAD: prop drilling hidden behind dynamic context indirection
+<DynamicProvider registry={featureRegistry}>{children}</DynamicProvider>
+
+// ✅ GOOD: pass what the component actually needs
+<Sidebar user={user} onLogout={handleLogout} />
+```
+
+## When you feel the urge to abstract
+
+Ask: "Would a new teammate understand this in 30 seconds?" If not, prefer the boring version and leave a comment explaining any non-obvious constraint.

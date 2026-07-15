@@ -1,0 +1,52 @@
+---
+description: New frontend pages and components must include and pass required tests
+globs: frontend/**/*.{ts,tsx,jsx,js}
+alwaysApply: false
+---
+
+# Frontend Tests Required
+
+Every new or meaningfully changed frontend **page** or **component** must ship with tests and those tests must pass before considering the work done.
+
+## Stack
+
+- **Runner**: Vitest (`npm test` / `npm run test:watch` from `frontend/`)
+- **Library**: React Testing Library + `@testing-library/jest-dom`
+- **Location**: Colocate as `ComponentName.test.tsx` next to the source file
+- **Shared fixtures**: Reuse or extend `src/test/fixtures.ts`; mock API modules with `vi.mock('../api')` (or `./api`)
+
+## Requirements
+
+- Add or update tests in the same change set as the page/component.
+- Cover the main user-visible paths: loading, error (+ retry when present), and happy path. Add empty-state coverage when the UI has one.
+- Pages that fetch data must mock `../api` — do not hit the network.
+- Run the suite and fix failures before finishing:
+
+```bash
+# From frontend/
+npm test
+```
+
+## Examples
+
+```tsx
+// ❌ BAD: new page with no tests
+// frontend/src/pages/Standings.tsx
+// (no Standings.test.tsx)
+
+// ✅ GOOD: colocated tests that pass
+// frontend/src/pages/Standings.tsx
+// frontend/src/pages/Standings.test.tsx  // loading, error+retry, happy path
+```
+
+```tsx
+// ❌ BAD: change UI contract, leave assertions stale or skip failing tests
+// ✅ GOOD: update assertions, keep suite green, no .skip to hide gaps
+```
+
+## Checklist before done
+
+- [ ] Colocated `*.test.tsx` exists for the new/changed page or component
+- [ ] Loading / error / happy paths covered where applicable
+- [ ] `npm test` passes
+- [ ] No skipped tests used to hide broken coverage

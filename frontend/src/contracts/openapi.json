@@ -1,0 +1,1163 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tennis Tracker API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rankings/atp": {
+      "get": {
+        "summary": "Atp Rankings",
+        "operationId": "atp_rankings_api_rankings_atp_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerRankingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rankings/wta": {
+      "get": {
+        "summary": "Wta Rankings",
+        "operationId": "wta_rankings_api_rankings_wta_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerRankingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rankings/countries": {
+      "get": {
+        "summary": "Country Rankings",
+        "operationId": "country_rankings_api_rankings_countries_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CountryRankingsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/results/wimbledon": {
+      "get": {
+        "summary": "Wimbledon Results",
+        "operationId": "wimbledon_results_api_results_wimbledon_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TournamentResultsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/players/{player_id}/season": {
+      "get": {
+        "summary": "Player Season Stats",
+        "operationId": "player_season_stats_api_players__player_id__season_get",
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Player Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerSeasonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/match/final": {
+      "get": {
+        "summary": "Final Match",
+        "operationId": "final_match_api_match_final_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalMatchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CountryRankingsResponse": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SeasonContext"
+          },
+          "standings": {
+            "items": {
+              "$ref": "#/components/schemas/CountryStanding"
+            },
+            "type": "array",
+            "title": "Standings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context",
+          "standings"
+        ],
+        "title": "CountryRankingsResponse"
+      },
+      "CountryStanding": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "position_start": {
+            "type": "integer",
+            "title": "Position Start"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "country_colour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Colour"
+          },
+          "points": {
+            "type": "number",
+            "title": "Points"
+          },
+          "points_start": {
+            "type": "number",
+            "title": "Points Start"
+          },
+          "player_count": {
+            "type": "integer",
+            "title": "Player Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position",
+          "position_start",
+          "country",
+          "points",
+          "points_start",
+          "player_count"
+        ],
+        "title": "CountryStanding"
+      },
+      "FinalMatch": {
+        "properties": {
+          "tournament": {
+            "type": "string",
+            "title": "Tournament"
+          },
+          "surface": {
+            "type": "string",
+            "title": "Surface"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "venue": {
+            "type": "string",
+            "title": "Venue"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "winner": {
+            "$ref": "#/components/schemas/MatchPlayer"
+          },
+          "runner_up": {
+            "$ref": "#/components/schemas/MatchPlayer"
+          },
+          "score": {
+            "type": "string",
+            "title": "Score"
+          },
+          "sets": {
+            "items": {
+              "$ref": "#/components/schemas/MatchSet"
+            },
+            "type": "array",
+            "title": "Sets"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/MatchStats"
+          },
+          "highlights": {
+            "items": {
+              "$ref": "#/components/schemas/MatchHighlight"
+            },
+            "type": "array",
+            "title": "Highlights"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tournament",
+          "surface",
+          "date",
+          "venue",
+          "duration_minutes",
+          "winner",
+          "runner_up",
+          "score",
+          "sets",
+          "stats",
+          "highlights"
+        ],
+        "title": "FinalMatch"
+      },
+      "FinalMatchResponse": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SeasonContext"
+          },
+          "match": {
+            "$ref": "#/components/schemas/FinalMatch"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context",
+          "match"
+        ],
+        "title": "FinalMatchResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "HealthResponse"
+      },
+      "MatchHighlight": {
+        "properties": {
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "time",
+          "description"
+        ],
+        "title": "MatchHighlight"
+      },
+      "MatchPlayer": {
+        "properties": {
+          "player_id": {
+            "type": "integer",
+            "title": "Player Id"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "name_acronym": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Acronym"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "country_colour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Colour"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "player_id"
+        ],
+        "title": "MatchPlayer"
+      },
+      "MatchPlayerStats": {
+        "properties": {
+          "aces": {
+            "type": "integer",
+            "title": "Aces"
+          },
+          "double_faults": {
+            "type": "integer",
+            "title": "Double Faults"
+          },
+          "winners": {
+            "type": "integer",
+            "title": "Winners"
+          },
+          "unforced_errors": {
+            "type": "integer",
+            "title": "Unforced Errors"
+          },
+          "first_serve_pct": {
+            "type": "integer",
+            "title": "First Serve Pct"
+          },
+          "break_points_saved": {
+            "type": "string",
+            "title": "Break Points Saved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "aces",
+          "double_faults",
+          "winners",
+          "unforced_errors",
+          "first_serve_pct",
+          "break_points_saved"
+        ],
+        "title": "MatchPlayerStats"
+      },
+      "MatchSet": {
+        "properties": {
+          "set": {
+            "type": "integer",
+            "title": "Set"
+          },
+          "winner_games": {
+            "type": "integer",
+            "title": "Winner Games"
+          },
+          "runner_up_games": {
+            "type": "integer",
+            "title": "Runner Up Games"
+          },
+          "tiebreak": {
+            "type": "boolean",
+            "title": "Tiebreak"
+          },
+          "winner_tb": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner Tb"
+          },
+          "runner_up_tb": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runner Up Tb"
+          }
+        },
+        "type": "object",
+        "required": [
+          "set",
+          "winner_games",
+          "runner_up_games",
+          "tiebreak"
+        ],
+        "title": "MatchSet"
+      },
+      "MatchStats": {
+        "properties": {
+          "winner": {
+            "$ref": "#/components/schemas/MatchPlayerStats"
+          },
+          "runner_up": {
+            "$ref": "#/components/schemas/MatchPlayerStats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "winner",
+          "runner_up"
+        ],
+        "title": "MatchStats"
+      },
+      "PlayerProfile": {
+        "properties": {
+          "player_id": {
+            "type": "integer",
+            "title": "Player Id"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "name_acronym": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Acronym"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "country_colour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Colour"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "player_id"
+        ],
+        "title": "PlayerProfile"
+      },
+      "PlayerRankingsResponse": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SeasonContext"
+          },
+          "standings": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerStanding"
+            },
+            "type": "array",
+            "title": "Standings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context",
+          "standings"
+        ],
+        "title": "PlayerRankingsResponse"
+      },
+      "PlayerSeasonResponse": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SeasonContext"
+          },
+          "player": {
+            "$ref": "#/components/schemas/PlayerProfile"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/PlayerSeasonSummary"
+          },
+          "trajectory": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerSeasonRound"
+            },
+            "type": "array",
+            "title": "Trajectory"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context",
+          "player",
+          "summary",
+          "trajectory"
+        ],
+        "title": "PlayerSeasonResponse"
+      },
+      "PlayerSeasonRound": {
+        "properties": {
+          "round": {
+            "type": "integer",
+            "title": "Round"
+          },
+          "tournament_id": {
+            "type": "integer",
+            "title": "Tournament Id"
+          },
+          "tournament_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tournament Name"
+          },
+          "date_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Start"
+          },
+          "surface": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surface"
+          },
+          "ranking_points": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Points"
+          },
+          "ranking_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ranking Position"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "opponent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opponent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "round",
+          "tournament_id"
+        ],
+        "title": "PlayerSeasonRound"
+      },
+      "PlayerSeasonSummary": {
+        "properties": {
+          "titles": {
+            "type": "integer",
+            "title": "Titles"
+          },
+          "grand_slams": {
+            "type": "integer",
+            "title": "Grand Slams"
+          },
+          "best_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Result"
+          },
+          "best_result_tournament": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Result Tournament"
+          },
+          "matches_won": {
+            "type": "integer",
+            "title": "Matches Won"
+          },
+          "matches_lost": {
+            "type": "integer",
+            "title": "Matches Lost"
+          },
+          "win_pct": {
+            "type": "number",
+            "title": "Win Pct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "titles",
+          "grand_slams",
+          "matches_won",
+          "matches_lost",
+          "win_pct"
+        ],
+        "title": "PlayerSeasonSummary"
+      },
+      "PlayerStanding": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "position_start": {
+            "type": "integer",
+            "title": "Position Start"
+          },
+          "player_id": {
+            "type": "integer",
+            "title": "Player Id"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "name_acronym": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Acronym"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "country_colour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Colour"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          },
+          "points": {
+            "type": "number",
+            "title": "Points"
+          },
+          "points_start": {
+            "type": "number",
+            "title": "Points Start"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position",
+          "position_start",
+          "player_id",
+          "points",
+          "points_start"
+        ],
+        "title": "PlayerStanding"
+      },
+      "SeasonContext": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "tournament_id": {
+            "type": "integer",
+            "title": "Tournament Id"
+          },
+          "tournament_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tournament Name"
+          },
+          "tournament_official_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tournament Official Name"
+          },
+          "country_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Name"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "surface": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Surface"
+          },
+          "event_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Name"
+          },
+          "date_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Start"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "tournament_id"
+        ],
+        "title": "SeasonContext"
+      },
+      "TournamentResult": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "player_id": {
+            "type": "integer",
+            "title": "Player Id"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "name_acronym": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Acronym"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "country_colour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Colour"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          },
+          "round_reached": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round Reached"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "retired": {
+            "type": "boolean",
+            "title": "Retired"
+          },
+          "walkover": {
+            "type": "boolean",
+            "title": "Walkover"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position",
+          "player_id",
+          "retired",
+          "walkover"
+        ],
+        "title": "TournamentResult"
+      },
+      "TournamentResultsResponse": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SeasonContext"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/TournamentResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context",
+          "results"
+        ],
+        "title": "TournamentResultsResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

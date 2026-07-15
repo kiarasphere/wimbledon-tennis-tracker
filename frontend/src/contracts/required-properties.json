@@ -1,0 +1,99 @@
+{
+  "SeasonContext": [
+    "year",
+    "tournament_id",
+    "tournament_name",
+    "tournament_official_name",
+    "country_name",
+    "location",
+    "surface",
+    "event_name",
+    "date_start"
+  ],
+  "PlayerStanding": [
+    "position",
+    "position_start",
+    "player_id",
+    "full_name",
+    "name_acronym",
+    "country",
+    "country_colour",
+    "photo_url",
+    "points",
+    "points_start"
+  ],
+  "CountryStanding": [
+    "position",
+    "position_start",
+    "country",
+    "country_colour",
+    "points",
+    "points_start",
+    "player_count"
+  ],
+  "TournamentResult": [
+    "position",
+    "seed",
+    "player_id",
+    "full_name",
+    "name_acronym",
+    "country",
+    "country_colour",
+    "photo_url",
+    "round_reached",
+    "score",
+    "retired",
+    "walkover"
+  ],
+  "PlayerProfile": [
+    "player_id",
+    "full_name",
+    "name_acronym",
+    "country",
+    "country_colour",
+    "photo_url"
+  ],
+  "PlayerSeasonSummary": [
+    "titles",
+    "grand_slams",
+    "best_result",
+    "best_result_tournament",
+    "matches_won",
+    "matches_lost",
+    "win_pct"
+  ],
+  "PlayerSeasonRound": [
+    "round",
+    "tournament_id",
+    "tournament_name",
+    "date_start",
+    "surface",
+    "ranking_points",
+    "ranking_position",
+    "seed",
+    "result",
+    "opponent"
+  ],
+  "PlayerRankingsResponse": [
+    "context",
+    "standings"
+  ],
+  "CountryRankingsResponse": [
+    "context",
+    "standings"
+  ],
+  "TournamentResultsResponse": [
+    "context",
+    "results"
+  ],
+  "PlayerSeasonResponse": [
+    "context",
+    "player",
+    "summary",
+    "trajectory"
+  ],
+  "FinalMatchResponse": [
+    "context",
+    "match"
+  ]
+}

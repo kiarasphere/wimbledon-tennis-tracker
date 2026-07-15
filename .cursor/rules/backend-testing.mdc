@@ -1,0 +1,76 @@
+---
+description: Require tests written and passing before backend feature work is considered done
+globs: backend/**/*.py
+alwaysApply: false
+---
+
+# Backend Testing (TDD)
+
+When changing the FastAPI backend, follow test-first. Do not treat a feature as done until tests exist and pass.
+
+## Workflow
+
+1. **Write or update tests first** for the intended behavior (new endpoint, changed response shape, error path, or OpenF1 client change).
+2. **Run the tests** and confirm they fail for the right reason (missing behavior), then implement.
+3. **Re-run until green** before moving on to frontend or calling the work complete.
+4. **Never skip or delete failing tests** to make a change “pass.” Fix the code or fix the test intentionally.
+
+## How to run
+
+From `backend/` (with the project venv active):
+
+```bash
+pip install -r requirements-dev.txt   # once, or after dep changes
+pytest
+```
+
+Dev deps live in `requirements-dev.txt` (`pytest`, `pytest-asyncio`). Config is in `pytest.ini` (`asyncio_mode = auto`, `pythonpath = .`).
+
+## What must be covered
+
+- New or changed API routes (`backend/app/main.py`) — see `tests/test_main.py`
+- Changes to OpenF1 / external client logic (`backend/app/openf1.py`) — see `tests/test_openf1.py`
+- Error paths that map to HTTP status codes (e.g. 502 on upstream failure)
+- Response shape contracts the frontend depends on
+
+## Conventions
+
+- Place tests under `backend/tests/` (`test_main.py`, `test_openf1.py`, shared fixtures in `conftest.py`).
+- Use `pytest` + FastAPI `TestClient` for route tests.
+- Mock external HTTP (OpenF1) via `_fetch_json` or the public `openf1` entrypoints — do not hit the live API.
+- Clear the in-memory OpenF1 cache between tests (already done by the autouse fixture in `conftest.py`).
+- Name tests by behavior: `test_driver_standings_returns_200`, `test_latest_results_returns_502_on_upstream_error`.
+
+## Examples
+
+```python
+# ❌ BAD: implement endpoint, ship without tests
+@app.get("/api/standings/drivers")
+async def driver_standings(): ...
+
+# ✅ GOOD: test first, then implement until green
+def test_driver_standings_ok(client, mock_openf1):
+    mock_openf1["get_driver_standings"].return_value = {"standings": []}
+    res = client.get("/api/standings/drivers")
+    assert res.status_code == 200
+    assert "standings" in res.json()
+```
+
+```python
+# ❌ BAD: call real OpenF1 in tests
+async def test_live():
+    assert await get_driver_standings()  # network / flaky
+
+# ✅ GOOD: mock the upstream client
+async def test_standings_maps_upstream_error(client, mock_openf1):
+    mock_openf1["get_driver_standings"].side_effect = RuntimeError("upstream down")
+    res = client.get("/api/standings/drivers")
+    assert res.status_code == 502
+```
+
+## Done checklist
+
+- [ ] Tests added/updated for the backend change
+- [ ] `pytest` (from `backend/`) passes locally
+- [ ] External APIs are mocked
+- [ ] No feature work left that only exists in untested code paths
