@@ -20,6 +20,7 @@ const columns: StandingsColumn<PlayerStanding>[] = [
     header: 'Rank',
     className: 'col-pos',
     sortable: true,
+    sortValue: (row) => row.position,
     render: (row) => <PositionBadge position={row.position} />,
   },
   {
@@ -46,6 +47,7 @@ const columns: StandingsColumn<PlayerStanding>[] = [
     header: 'Points',
     className: 'col-points',
     sortable: true,
+    sortValue: (row) => row.points,
     render: (row) => <PointsDelta points={row.points} pointsStart={row.points_start} />,
   },
 ]

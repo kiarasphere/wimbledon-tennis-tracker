@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { CountryBadge, PointsDelta, PositionBadge, StandingsTable } from './StandingsTable'
 
@@ -33,6 +34,7 @@ describe('StandingsTable', () => {
             key: 'points',
             header: 'Points',
             sortable: true,
+            sortValue: (row) => row.points,
             render: (row) => row.points,
           },
         ]}
@@ -41,8 +43,52 @@ describe('StandingsTable', () => {
       />,
     )
 
-    expect(screen.getByRole('button', { name: 'Points' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sort by Points' })).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: 'Points' })).toBeInTheDocument()
+  })
+
+  it('sorts rows when a sortable header is clicked', async () => {
+    const user = userEvent.setup()
+    render(
+      <StandingsTable
+        columns={[
+          { key: 'name', header: 'Player', render: (row) => row.name },
+          {
+            key: 'points',
+            header: 'Points',
+            sortable: true,
+            sortValue: (row) => row.points,
+            render: (row) => row.points,
+          },
+        ]}
+        rows={[
+          { id: 1, name: 'Jannik Sinner', points: 13450 },
+          { id: 2, name: 'Alexander Zverev', points: 8480 },
+          { id: 3, name: 'Carlos Alcaraz', points: 8160 },
+        ]}
+        rowKey={(row) => row.id}
+      />,
+    )
+
+    const pointsHeader = screen.getByRole('button', { name: 'Sort by Points' })
+    await user.click(pointsHeader)
+
+    const bodyRows = screen.getAllByRole('row').slice(1)
+    expect(within(bodyRows[0]!).getByText('Carlos Alcaraz')).toBeInTheDocument()
+    expect(within(bodyRows[2]!).getByText('Jannik Sinner')).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Points' })).toHaveAttribute(
+      'aria-sort',
+      'ascending',
+    )
+
+    await user.click(pointsHeader)
+    const reversedRows = screen.getAllByRole('row').slice(1)
+    expect(within(reversedRows[0]!).getByText('Jannik Sinner')).toBeInTheDocument()
+    expect(within(reversedRows[2]!).getByText('Carlos Alcaraz')).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Points' })).toHaveAttribute(
+      'aria-sort',
+      'descending',
+    )
   })
 
   it('shows an empty state when there are no rows', () => {
