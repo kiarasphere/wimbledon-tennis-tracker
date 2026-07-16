@@ -240,32 +240,79 @@ def get_final_match() -> dict:
     return {"context": CONTEXT, "match": FINAL_MATCH}
 
 
+def _player_profile_fields(source: dict) -> dict:
+    return {
+        "player_id": source["player_id"],
+        "full_name": source["full_name"],
+        "name_acronym": source["name_acronym"],
+        "country": source["country"],
+        "country_colour": source["country_colour"],
+        "photo_url": source.get("photo_url"),
+    }
+
+
+def _season_from_atp_standing(standing: dict) -> dict:
+    return {
+        "context": CONTEXT,
+        "player": _player_profile_fields(standing),
+        "summary": {
+            "titles": 0,
+            "grand_slams": 0,
+            "best_result": None,
+            "best_result_tournament": None,
+            "matches_won": 0,
+            "matches_lost": 0,
+            "win_pct": 0.0,
+        },
+        "trajectory": [],
+    }
+
+
+def _season_from_latest_result(result: dict) -> dict:
+    """Minimal season for players on the results page but outside top-20 / PLAYER_SEASONS."""
+    round_reached = result.get("round_reached")
+    is_champion = round_reached == "Champion"
+    return {
+        "context": CONTEXT,
+        "player": _player_profile_fields(result),
+        "summary": {
+            "titles": 1 if is_champion else 0,
+            "grand_slams": 1 if is_champion else 0,
+            "best_result": round_reached,
+            "best_result_tournament": "Wimbledon",
+            "matches_won": 0,
+            "matches_lost": 0,
+            "win_pct": 0.0,
+        },
+        "trajectory": [
+            {
+                "round": 1,
+                "tournament_id": 20260701,
+                "tournament_name": "Wimbledon",
+                "date_start": "2026-07-12",
+                "surface": "Grass",
+                "ranking_points": None,
+                "ranking_position": None,
+                "seed": result.get("seed"),
+                "result": round_reached,
+                "opponent": None,
+            }
+        ],
+    }
+
+
 def get_player_season(player_id: int) -> dict:
     season = PLAYER_SEASONS.get(player_id)
-    if season is None:
-        # Build a minimal profile from ATP rankings if available
-        for standing in ATP_RANKINGS:
-            if standing["player_id"] == player_id:
-                return {
-                    "context": CONTEXT,
-                    "player": {
-                        "player_id": standing["player_id"],
-                        "full_name": standing["full_name"],
-                        "name_acronym": standing["name_acronym"],
-                        "country": standing["country"],
-                        "country_colour": standing["country_colour"],
-                        "photo_url": standing["photo_url"],
-                    },
-                    "summary": {
-                        "titles": 0,
-                        "grand_slams": 0,
-                        "best_result": None,
-                        "best_result_tournament": None,
-                        "matches_won": 0,
-                        "matches_lost": 0,
-                        "win_pct": 0.0,
-                    },
-                    "trajectory": [],
-                }
-        raise PlayerNotFoundError(f"Player {player_id} not found")
-    return {"context": CONTEXT, **season}
+    if season is not None:
+        return {"context": CONTEXT, **season}
+
+    for standing in ATP_RANKINGS:
+        if standing["player_id"] == player_id:
+            return _season_from_atp_standing(standing)
+
+    # Results page links every LATEST_RESULTS player; resolve those outside top-20 too.
+    for result in LATEST_RESULTS:
+        if result["player_id"] == player_id:
+            return _season_from_latest_result(result)
+
+    raise PlayerNotFoundError(f"Player {player_id} not found")

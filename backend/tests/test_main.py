@@ -69,6 +69,34 @@ def test_player_season_returns_404_for_unknown(client) -> None:
     assert res.json()["detail"] == "Player not found"
 
 
+def test_player_season_resolves_wimbledon_semifinalist_fery(client) -> None:
+    """Results page links Arthur Fery (id 36); season endpoint must not 404."""
+    res = client.get("/api/players/36/season")
+
+    assert res.status_code == 200
+    payload = res.json()
+    assert payload["player"]["player_id"] == 36
+    assert payload["player"]["full_name"] == "Arthur Fery"
+    assert payload["summary"]["best_result"] == "Semifinal"
+    assert payload["summary"]["best_result_tournament"] == "Wimbledon"
+    assert any(t.get("tournament_name") == "Wimbledon" for t in payload["trajectory"])
+    PlayerSeasonResponse.model_validate(payload)
+
+
+def test_player_season_resolves_wimbledon_quarterfinalist_struff(client) -> None:
+    """Results page links Jan-Lennard Struff (id 37); season endpoint must not 404."""
+    res = client.get("/api/players/37/season")
+
+    assert res.status_code == 200
+    payload = res.json()
+    assert payload["player"]["player_id"] == 37
+    assert payload["player"]["full_name"] == "Jan-Lennard Struff"
+    assert payload["summary"]["best_result"] == "Quarterfinal"
+    assert payload["summary"]["best_result_tournament"] == "Wimbledon"
+    assert any(t.get("tournament_name") == "Wimbledon" for t in payload["trajectory"])
+    PlayerSeasonResponse.model_validate(payload)
+
+
 def test_final_match_returns_200(client) -> None:
     res = client.get("/api/match/final")
 
