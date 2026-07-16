@@ -128,7 +128,7 @@ Severity guide:
 - **Evidence required** — every finding cites a file/symbol or a failing command.
 - **No speculative CVE essays** — only concrete issues in this codebase.
 - **Respect architecture rules** — flag clever abstractions and per-widget fetches; do not recommend new frameworks.
-- **Offer next steps** only at the end (e.g. file Jira bugs via `write-jira-bug-ticket`, or fix top N) — do not start them unprompted.
+- **Offer next steps** only at the end (e.g. file Jira bugs via `write-jira-bug-ticket`, features via `write-jira-feature-ticket`, or fix top N) — do not start them unprompted.
 
 ## Anti-patterns for this skill
 
