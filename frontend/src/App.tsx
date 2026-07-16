@@ -16,7 +16,7 @@ function App() {
           <BrandMark className="brand-mark" />
           <div>
             <p className="brand-title">Tennis Tracker</p>
-            <p className="brand-subtitle">Data as of 15 July 2026</p>
+            <p className="brand-subtitle">Season snapshot · 15 July 2026</p>
           </div>
         </div>
         <nav className="nav-links" aria-label="Primary">
