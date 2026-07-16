@@ -7,6 +7,8 @@ description: Implement an existing Jira ticket end-to-end — fetch the issue, p
 
 Take an **existing** Jira issue and ship it. Do not create tickets (use `write-jira-bug-ticket` for bugs or `write-jira-feature-ticket` for features). Always plan before coding; no approval gate — plan, then build.
 
+For **New Feature** / enhancement tickets, prefer `.cursor/skills/implement-features/SKILL.md` — it is specialized for AC-driven feature delivery. Use this skill for Bugs (and general tickets when `implement-features` does not apply).
+
 Bug tickets often follow `.cursor/skills/write-jira-bug-ticket/SKILL.md` (Summary, Steps to Reproduce, Expected/Actual, Environment, Evidence, Notes). New Feature tickets follow `.cursor/skills/write-jira-feature-ticket/SKILL.md` (Summary, Problem/Opportunity, Proposed Solution, User Stories, Acceptance Criteria). Use whichever structure matches the issue type.
 
 ## Workflow
