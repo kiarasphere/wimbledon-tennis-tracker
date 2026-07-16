@@ -1,12 +1,16 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+
+export type SortDirection = 'asc' | 'desc'
 
 export interface StandingsColumn<T> {
   key: string
   header: string
   render: (row: T) => ReactNode
   className?: string
-  /** When true, shows sort arrows that look interactive. */
+  /** When true, header becomes a sort control that reorders rows. */
   sortable?: boolean
+  /** Value used when sorting this column. Required for reliable sort when `sortable` is true. */
+  sortValue?: (row: T) => string | number | null | undefined
 }
 
 interface StandingsTableProps<T> {
@@ -16,12 +20,72 @@ interface StandingsTableProps<T> {
   emptyMessage?: string
 }
 
+interface SortState {
+  key: string
+  direction: SortDirection
+}
+
+function compareSortValues(
+  a: string | number | null | undefined,
+  b: string | number | null | undefined,
+  direction: SortDirection,
+): number {
+  const aMissing = a === null || a === undefined
+  const bMissing = b === null || b === undefined
+  if (aMissing && bMissing) return 0
+  if (aMissing) return 1
+  if (bMissing) return -1
+
+  let result: number
+  if (typeof a === 'number' && typeof b === 'number') {
+    result = a - b
+  } else {
+    result = String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' })
+  }
+
+  return direction === 'asc' ? result : -result
+}
+
+function sortRows<T>(rows: T[], columns: StandingsColumn<T>[], sort: SortState | null): T[] {
+  if (!sort) return rows
+
+  const column = columns.find((c) => c.key === sort.key && c.sortable)
+  if (!column) return rows
+
+  const getValue =
+    column.sortValue ??
+    ((row: T) => {
+      const record = row as Record<string, unknown>
+      const value = record[column.key]
+      if (typeof value === 'string' || typeof value === 'number') return value
+      return null
+    })
+
+  return [...rows].sort((left, right) =>
+    compareSortValues(getValue(left), getValue(right), sort.direction),
+  )
+}
+
 export function StandingsTable<T>({
   columns,
   rows,
   rowKey,
   emptyMessage = 'No data available yet.',
 }: StandingsTableProps<T>) {
+  const [sort, setSort] = useState<SortState | null>(null)
+
+  const handleSortClick = (columnKey: string) => {
+    setSort((current) => {
+      if (current?.key === columnKey) {
+        return {
+          key: columnKey,
+          direction: current.direction === 'asc' ? 'desc' : 'asc',
+        }
+      }
+      return { key: columnKey, direction: 'asc' }
+    })
+  }
+
   if (rows.length === 0) {
     return (
       <div className="table-shell table-empty" role="status">
@@ -30,29 +94,53 @@ export function StandingsTable<T>({
     )
   }
 
+  const sortedRows = sortRows(rows, columns, sort)
+
   return (
     <div className="table-shell">
       <table className="standings-table">
         <thead>
           <tr>
-            {columns.map((column) => (
-              <th key={column.key} className={column.className}>
-                {column.sortable ? (
-                  <button type="button" className="sortable-header">
-                    <span>{column.header}</span>
-                    <span className="sort-arrows" aria-hidden="true">
-                      ↕
-                    </span>
-                  </button>
-                ) : (
-                  column.header
-                )}
-              </th>
-            ))}
+            {columns.map((column) => {
+              const isActive = sort?.key === column.key
+              const direction = isActive ? sort.direction : null
+              const ariaSort =
+                column.sortable && isActive
+                  ? direction === 'asc'
+                    ? 'ascending'
+                    : 'descending'
+                  : column.sortable
+                    ? 'none'
+                    : undefined
+
+              return (
+                <th key={column.key} className={column.className} aria-sort={ariaSort}>
+                  {column.sortable ? (
+                    <button
+                      type="button"
+                      className="sortable-header"
+                      onClick={() => handleSortClick(column.key)}
+                      aria-label={
+                        isActive
+                          ? `Sort by ${column.header}, currently ${direction === 'asc' ? 'ascending' : 'descending'}`
+                          : `Sort by ${column.header}`
+                      }
+                    >
+                      <span>{column.header}</span>
+                      <span className="sort-arrows" aria-hidden="true">
+                        {direction === 'asc' ? '↑' : direction === 'desc' ? '↓' : '↕'}
+                      </span>
+                    </button>
+                  ) : (
+                    column.header
+                  )}
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {sortedRows.map((row) => (
             <tr key={rowKey(row)}>
               {columns.map((column) => (
                 <td key={column.key} className={column.className}>
