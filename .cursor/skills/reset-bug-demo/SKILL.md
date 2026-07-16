@@ -1,6 +1,6 @@
 ---
 name: reset-bug-demo
-description: Reset the repo to the planted non-functional sort-arrows bug baseline and close open pull requests so the bug-fix demo can be rerun. Use when the user asks to reset the demo, clear PRs, restore the planted bug, or demo fixing the sort arrows again.
+description: Reset the repo to the planted non-functional sort-arrows bug baseline, close open pull requests, and clear related Jira demo tickets so the bug-fix demo can be rerun. Use when the user asks to reset the demo, clear PRs, restore the planted bug, clear demo Jira tickets, or demo fixing the sort arrows again.
 ---
 
 # Reset Bug Demo
@@ -16,10 +16,11 @@ After a successful reset:
 1. Local repo is on **`main`**, clean, matching `origin/main`.
 2. **No open pull requests** remain on the GitHub repo.
 3. Remote head branches from those PRs are deleted (never delete `main`).
-4. The planted bug is present and broken:
+4. Related **TABT** sort-arrows demo Bug tickets are cleared (deleted when possible, otherwise closed/cancelled).
+5. The planted bug is present and broken:
    - ATP and WTA Rankings show **Rank** and **Points** headers with clickable `↕` sort controls.
    - Clicking them does **not** reorder rows (no sort state, no sort handler).
-5. Unrelated local feature branches may be deleted; prefer a clean working tree on `main`.
+6. Unrelated local feature branches may be deleted; prefer a clean working tree on `main`.
 
 ## Planted bug reference
 
@@ -39,8 +40,9 @@ Task Progress:
 - [ ] Step 1: Close all open pull requests
 - [ ] Step 2: Delete PR head branches (remote + local)
 - [ ] Step 3: Hard-reset local repo to origin/main
-- [ ] Step 4: Ensure planted sort-arrows bug is present
-- [ ] Step 5: Confirm baseline and report
+- [ ] Step 4: Clear related Jira demo tickets
+- [ ] Step 5: Ensure planted sort-arrows bug is present
+- [ ] Step 6: Confirm baseline and report
 ```
 
 ### Step 1: Close all open pull requests
@@ -72,9 +74,35 @@ git reset --hard origin/main
 git clean -fd
 ```
 
-Do not leave uncommitted demo leftovers. Do not force-push `main` unless Step 4 requires publishing a re-planted bug commit (normal push is enough).
+Do not leave uncommitted demo leftovers. Do not force-push `main` unless Step 5 requires publishing a re-planted bug commit (normal push is enough).
 
-### Step 4: Ensure planted sort-arrows bug is present
+### Step 4: Clear related Jira demo tickets
+
+Clear **TABT** Bug tickets created for this sort-arrows demo so the next run can file a fresh ticket via `write-jira-bug-ticket`.
+
+1. Resolve Atlassian `cloudId` via `getAccessibleAtlassianResources` (authenticate first if required).
+2. Search with `searchJiraIssuesUsingJql` for demo Bugs, e.g.:
+
+```
+project = TABT AND issuetype = Bug AND (
+  summary ~ "sort" OR summary ~ "sortable" OR summary ~ "sort arrow"
+  OR text ~ "sortable-header" OR text ~ "sort arrows" OR text ~ "↕"
+) ORDER BY updated DESC
+```
+
+   Broaden or narrow the JQL if needed so you catch tickets about Rank/Points header sort controls that do not reorder rows. Prefer Bugs clearly about this planted demo; do **not** mass-close unrelated TABT work.
+3. For each matching issue (any status, including Done — demo cleanup should remove leftovers):
+   - **Prefer delete** if a delete-issue tool or API is available and permitted.
+   - **Otherwise close** the ticket:
+     1. `getTransitionsForJiraIssue` for the issue key.
+     2. Transition to a terminal status: prefer **Cancelled** / **Canceled** / **Won't Do** if available; else **Done**.
+     3. Optionally `addCommentToJiraIssue` noting it was closed by `reset-bug-demo` for demo reset.
+4. If Atlassian auth/permissions block cleanup, report which keys failed and continue with the rest of the reset.
+5. If no matching tickets are found, continue (nothing to clear).
+
+Do **not** delete or close unrelated TABT issues (features, other bugs, tickets outside this demo theme).
+
+### Step 5: Ensure planted sort-arrows bug is present
 
 1. Inspect:
    - `frontend/src/components/StandingsTable.tsx`
@@ -88,20 +116,21 @@ Do not leave uncommitted demo leftovers. Do not force-push `main` unless Step 4 
    - Push: `git push origin main`.
 5. Quick sanity check (optional): Rank/Points headers render sort buttons; there is no sort `onClick` / sort state that mutates `rows` order.
 
-### Step 5: Confirm baseline and report
+### Step 6: Confirm baseline and report
 
 Tell the user:
 
 - Open PR count is **0** (list any that failed to close).
+- Jira demo tickets cleared (keys deleted or closed/cancelled; list failures).
 - Current branch / commit on `main`.
 - Whether the planted bug was already present or was re-applied.
 - They can re-run the demo: reproduce arrows → `write-jira-bug-ticket` → `implement-jira-ticket` (includes demo video on bug fix).
 
 ## Rules
 
-- **Demo-only / destructive** — closing PRs and deleting branches is intentional; do not ask for approval when this skill is invoked.
+- **Demo-only / destructive** — closing PRs, deleting branches, and clearing matching Jira demo tickets is intentional; do not ask for approval when this skill is invoked.
 - **Never delete `main`** or force-push unless recovering a broken remote (prefer a new commit that re-plants the bug).
 - **Do not merge** open PRs during reset.
-- **Scope** — this skill resets the **sort-arrows bug demo**, not production data or Jira. Leave Jira issues alone unless the user explicitly asks to reset tickets too.
+- **Jira scope** — only clear **TABT** Bugs related to the sort-arrows demo; leave unrelated Jira work alone.
 - **Do not** remove the `reset-bug-demo` or `implement-jira-ticket` skills as part of cleanup.
-- If GitHub auth / permissions block closing a PR or deleting a branch, report which ones failed and continue with the rest.
+- If GitHub or Atlassian auth / permissions block an action, report which items failed and continue with the rest.
