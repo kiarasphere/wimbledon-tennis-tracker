@@ -146,6 +146,35 @@
   text-transform: uppercase;
 }
 
+.sortable-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.sortable-header:hover {
+  color: rgba(232, 245, 233, 0.95);
+}
+
+.col-points .sortable-header {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.sort-arrows {
+  font-size: 0.9em;
+  opacity: 0.75;
+  line-height: 1;
+}
+
 .standings-table tbody tr:hover {
   background: rgba(165, 214, 167, 0.08);
 }

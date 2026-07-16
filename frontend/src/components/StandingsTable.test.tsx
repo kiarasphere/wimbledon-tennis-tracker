@@ -24,6 +24,27 @@ describe('StandingsTable', () => {
     expect(screen.getByText('8480')).toBeInTheDocument()
   })
 
+  it('renders clickable sort controls for sortable columns', () => {
+    render(
+      <StandingsTable
+        columns={[
+          { key: 'name', header: 'Player', render: (row) => row.name },
+          {
+            key: 'points',
+            header: 'Points',
+            sortable: true,
+            render: (row) => row.points,
+          },
+        ]}
+        rows={[{ id: 1, name: 'Jannik Sinner', points: 13450 }]}
+        rowKey={(row) => row.id}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Points' })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Points' })).toBeInTheDocument()
+  })
+
   it('shows an empty state when there are no rows', () => {
     render(
       <StandingsTable
