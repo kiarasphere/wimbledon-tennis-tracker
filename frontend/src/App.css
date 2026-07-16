@@ -348,12 +348,23 @@
 }
 
 .points-delta {
-  color: #7dffb3;
   font-size: 0.85rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   min-height: 1em;
   text-align: left;
+}
+
+.points-delta-gained {
+  color: #7dffb3;
+}
+
+.points-delta-lost {
+  color: #ff8a8a;
+}
+
+.points-delta-unchanged {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .state-card {

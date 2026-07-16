@@ -103,6 +103,7 @@ describe('PointsDelta', () => {
     expect(container.querySelector('.points-cell')).toBeInTheDocument()
     expect(container.querySelector('.points-delta')).toBeInTheDocument()
     expect(container.querySelector('.points-delta')).toBeEmptyDOMElement()
+    expect(container.querySelector('.points-delta')).toHaveClass('points-delta-unchanged')
   })
 
   it('shows a positive points delta', () => {
@@ -110,12 +111,15 @@ describe('PointsDelta', () => {
     expect(screen.getByText('8480')).toBeInTheDocument()
     expect(screen.getByText('+1290')).toBeInTheDocument()
     expect(container.querySelector('.points-cell')).toBeInTheDocument()
+    expect(container.querySelector('.points-delta')).toHaveClass('points-delta-gained')
   })
 
   it('shows a negative points delta with a single minus sign', () => {
-    render(<PointsDelta points={8160} pointsStart={9460} />)
+    const { container } = render(<PointsDelta points={8160} pointsStart={9460} />)
     expect(screen.getByText('8160')).toBeInTheDocument()
     expect(screen.getByText('-1300')).toBeInTheDocument()
     expect(screen.queryByText('+-1300')).not.toBeInTheDocument()
+    expect(container.querySelector('.points-delta')).toHaveClass('points-delta-lost')
+    expect(container.querySelector('.points-delta')).not.toHaveClass('points-delta-gained')
   })
 })

@@ -92,11 +92,13 @@ export function PointsDelta({ points, pointsStart }: { points: number; pointsSta
   const delta = Math.round(points - pointsStart)
   const formattedPoints = Math.round(points)
   const signedDelta = delta === 0 ? null : delta > 0 ? `+${delta}` : `${delta}`
+  const deltaTone =
+    delta > 0 ? 'points-delta-gained' : delta < 0 ? 'points-delta-lost' : 'points-delta-unchanged'
 
   return (
     <span className="points-cell">
       <span className="points-value">{formattedPoints}</span>
-      <span className="points-delta" aria-hidden={signedDelta === null}>
+      <span className={`points-delta ${deltaTone}`} aria-hidden={signedDelta === null}>
         {signedDelta}
       </span>
     </span>
