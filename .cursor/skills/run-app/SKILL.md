@@ -1,20 +1,33 @@
 ---
 name: run-app
-description: Run the Tennis Tracker app locally — FastAPI backend (port 8000) and Vite/React frontend (port 5173), plus how to run tests and lint. Use when the user asks how to run, start, launch, or serve the app locally, or how to run its tests/lint.
+description: Run the Tennis Tracker app locally on your own machine and open it in your own browser — FastAPI backend (port 8000) and Vite/React frontend (port 5173), plus how to run tests and lint. Use when the user asks how to run, start, launch, or serve the app locally, open it in their browser, or run its tests/lint.
 ---
 
-# Run Tennis Tracker Locally
+# Run Tennis Tracker on Your Own Machine
+
+Run the app on **your local machine** and open it in **your own browser**, not on a remote/cloud VM. If the servers run on a VM, `http://localhost:5173` in your local browser points at *your* machine (where nothing is listening) and fails with `ERR_CONNECTION_REFUSED`. The steps below run everything locally so `localhost` resolves to your machine.
 
 Tennis Tracker needs **two processes**: a FastAPI backend and a Vite frontend. The frontend proxies `/api` to the backend, so **start the backend first** — otherwise the UI returns 502 on `/api` calls.
 
-| Service  | Directory   | Command                                                | URL                     |
+| Service  | Directory   | Command                                                | URL (your machine)      |
 |----------|-------------|--------------------------------------------------------|-------------------------|
 | Backend  | `backend/`  | `.venv/bin/uvicorn app.main:app --reload --port 8000`  | http://localhost:8000   |
 | Frontend | `frontend/` | `npm run dev`                                          | http://localhost:5173   |
 
 All data is hardcoded in `backend/app/tennis_data.py` — no network access or API keys are required.
 
-## 1. Backend (`backend/`)
+Prereqs: Python 3.12 and Node 18+ (repo runs on Node 22).
+
+## 0. Get the code (once)
+
+```bash
+git clone https://github.com/kiarasphere/wimbledon-tennis-tracker.git
+cd wimbledon-tennis-tracker
+# check out the branch you want, e.g. main once merged
+git checkout main
+```
+
+## 1. Backend (`backend/`) — terminal 1
 
 Always use the `backend/.venv` virtualenv. Never install into system Python (no bare `pip`/`pip3`/`python3 -m pip`).
 
@@ -29,7 +42,7 @@ Wait for `Application startup complete`. Health check: `curl -s http://localhost
 
 On Debian/Ubuntu, if `python3 -m venv` fails with an `ensurepip` error, install the venv package first: `sudo apt install python3.12-venv` (match your Python version), then recreate `.venv`.
 
-## 2. Frontend (`frontend/`) — second terminal
+## 2. Frontend (`frontend/`) — terminal 2
 
 ```bash
 cd frontend
@@ -37,7 +50,20 @@ npm install
 npm run dev
 ```
 
-App runs at http://localhost:5173. Use `npm run dev` for local development — do **not** use `npm run build` to serve locally.
+Use `npm run dev` for local development — do **not** use `npm run build` to serve locally.
+
+## 3. Open it in your browser
+
+Open http://localhost:5173 in your own browser:
+
+```bash
+# macOS
+open http://localhost:5173
+# Linux
+xdg-open http://localhost:5173
+# Windows
+start http://localhost:5173
+```
 
 Routes: `/atp`, `/wta`, `/countries`, `/results`, `/players/:playerId`, `/final` (`/` redirects to `/atp`).
 
@@ -71,6 +97,7 @@ npm run build      # production build / type-check (tsc -b && vite build)
 
 | Symptom | Fix |
 |---------|-----|
+| `ERR_CONNECTION_REFUSED` on `http://localhost:5173` | The dev server isn't running on *this* machine. Run the frontend locally (step 2). If it runs on a remote/cloud VM, either run it locally instead or forward the VM's ports 5173/8000 to your machine (e.g. `ssh -L 5173:localhost:5173 -L 8000:localhost:8000 <vm>`). |
 | Port 8000 in use | Stop the existing uvicorn process (by PID), or use another port and update the proxy target in `frontend/vite.config.ts` |
 | Port 5173 in use | Vite picks the next free port — use the URL it prints |
 | Frontend 502 on `/api` | Backend is not running on port 8000 — start it first |
@@ -80,7 +107,7 @@ npm run build      # production build / type-check (tsc -b && vite build)
 
 ## Rules
 
+- Run the app **on your own machine** and open it in **your own browser** — not on a remote/cloud VM.
 - Start **backend before frontend**.
 - Always use `backend/.venv` for Python — create it if missing, install with `.venv/bin/pip`, run with `.venv/bin/uvicorn`.
-- Run long-lived servers in the background; don't block on them.
 - Use `npm run dev` (not `npm run build`) for local development.
