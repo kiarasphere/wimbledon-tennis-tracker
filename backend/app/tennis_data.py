@@ -95,7 +95,7 @@ COUNTRY_RANKINGS = [
     {"position": 10, "position_start": 10, "country": "KAZ", "country_colour": COUNTRY_COLOURS["KAZ"], "points": 2810, "points_start": 2620, "player_count": 1},
 ]
 
-WIMBLEDON_RESULTS = [
+LATEST_RESULTS = [
     {"position": 1, "seed": 1, "player_id": 1, "full_name": "Jannik Sinner", "name_acronym": "SIN", "country": "ITA", "country_colour": COUNTRY_COLOURS["ITA"], "photo_url": None, "round_reached": "Champion", "score": "6-7(7), 7-6(2), 6-3, 6-4", "retired": False, "walkover": False},
     {"position": 2, "seed": 2, "player_id": 2, "full_name": "Alexander Zverev", "name_acronym": "ZVE", "country": "GER", "country_colour": COUNTRY_COLOURS["GER"], "photo_url": None, "round_reached": "Final", "score": None, "retired": False, "walkover": False},
     {"position": 3, "seed": 7, "player_id": 7, "full_name": "Novak Djokovic", "name_acronym": "DJO", "country": "SRB", "country_colour": COUNTRY_COLOURS["SRB"], "photo_url": None, "round_reached": "Semifinal", "score": "L 4-6, 4-6, 4-6 vs Sinner", "retired": False, "walkover": False},
@@ -227,13 +227,13 @@ def get_country_rankings() -> dict:
     return {"context": country_context, "standings": COUNTRY_RANKINGS}
 
 
-def get_wimbledon_results() -> dict:
+def get_latest_results() -> dict:
     results_context = {
         **CONTEXT,
         "event_name": "Men's Singles",
         "date_start": "2026-07-12",
     }
-    return {"context": results_context, "results": WIMBLEDON_RESULTS}
+    return {"context": results_context, "results": LATEST_RESULTS}
 
 
 def get_final_match() -> dict:

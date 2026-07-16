@@ -38,11 +38,12 @@ export function FinalMatch() {
   }, [loadMatch])
 
   const match = data?.match
+  const title = match ? `${match.tournament} Final` : 'Tournament Final'
 
   return (
     <section className="page">
       <ContextHeader
-        title="Wimbledon Final"
+        title={title}
         context={data?.context ?? null}
         eyebrow="Match Stats"
         subtitle={

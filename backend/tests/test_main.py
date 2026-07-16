@@ -44,8 +44,8 @@ def test_country_rankings_returns_200(client) -> None:
     CountryRankingsResponse.model_validate(payload)
 
 
-def test_wimbledon_results_returns_200(client) -> None:
-    res = client.get("/api/results/wimbledon")
+def test_latest_results_returns_200(client) -> None:
+    res = client.get("/api/results/latest")
 
     assert res.status_code == 200
     payload = res.json()

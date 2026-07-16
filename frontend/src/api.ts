@@ -231,8 +231,8 @@ export function fetchCountryRankings(options?: FetchOptions): Promise<CountryRan
   return fetchJson<CountryRankingsResponse>('/api/rankings/countries', options)
 }
 
-export function fetchWimbledonResults(options?: FetchOptions): Promise<TournamentResultsResponse> {
-  return fetchJson<TournamentResultsResponse>('/api/results/wimbledon', options)
+export function fetchLatestResults(options?: FetchOptions): Promise<TournamentResultsResponse> {
+  return fetchJson<TournamentResultsResponse>('/api/results/latest', options)
 }
 
 export function fetchPlayerSeason(

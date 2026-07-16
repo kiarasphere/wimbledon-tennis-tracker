@@ -4,7 +4,7 @@ import { AtpRankings } from './pages/AtpRankings'
 import { WtaRankings } from './pages/WtaRankings'
 import { CountryRankings } from './pages/CountryRankings'
 import { PlayerProfile } from './pages/PlayerProfile'
-import { WimbledonResults } from './pages/WimbledonResults'
+import { TournamentResults } from './pages/TournamentResults'
 import { FinalMatch } from './pages/FinalMatch'
 import './App.css'
 
@@ -30,7 +30,7 @@ function App() {
             Countries
           </NavLink>
           <NavLink to="/results" className={({ isActive }) => (isActive ? 'active' : undefined)}>
-            Wimbledon
+            Results
           </NavLink>
           <NavLink to="/final" className={({ isActive }) => (isActive ? 'active' : undefined)}>
             Final
@@ -44,7 +44,7 @@ function App() {
           <Route path="/atp" element={<AtpRankings />} />
           <Route path="/wta" element={<WtaRankings />} />
           <Route path="/countries" element={<CountryRankings />} />
-          <Route path="/results" element={<WimbledonResults />} />
+          <Route path="/results" element={<TournamentResults />} />
           <Route path="/final" element={<FinalMatch />} />
         </Routes>
       </main>
