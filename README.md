@@ -1,6 +1,6 @@
 # Tennis Tracker
 
-A tennis rankings and results app with **hardcoded data as of 15 July 2026**. It shows ATP and WTA rankings, country standings, Wimbledon 2026 men's singles results, player season profiles, and the Wimbledon final match statistics.
+A tennis rankings and results app with **hardcoded data as of 15 July 2026**. It shows ATP and WTA rankings, country standings, the latest tournament results, player season profiles, and final match statistics. The current data snapshot covers Wimbledon 2026, but the app is tournament-agnostic — pages render whatever tournament the data provides.
 
 No live API calls — all data is served from static snapshots in `backend/app/tennis_data.py`.
 
@@ -44,7 +44,7 @@ The API runs at `http://localhost:8000`.
 - `GET /api/rankings/atp` — ATP singles rankings (top 20)
 - `GET /api/rankings/wta` — WTA singles rankings (top 15)
 - `GET /api/rankings/countries` — country rankings by total ATP points
-- `GET /api/results/wimbledon` — Wimbledon 2026 men's singles results
+- `GET /api/results/latest` — latest tournament results (currently Wimbledon 2026 men's singles)
 - `GET /api/players/{player_id}/season` — player season stats and trajectory
 - `GET /api/match/final` — Wimbledon 2026 men's final match statistics
 
@@ -81,9 +81,9 @@ npm run test:watch
 - `/atp` — ATP singles rankings with country flags and ranking point changes
 - `/wta` — WTA singles rankings
 - `/countries` — Country rankings by combined ATP points
-- `/results` — Wimbledon 2026 men's singles draw finishers
+- `/results` — latest tournament results (currently Wimbledon 2026 men's singles draw finishers)
 - `/players/:playerId` — Player season profile with tournament trajectory
-- `/final` — Wimbledon final scoreboard, set scores, match stats, and key moments
+- `/final` — latest final scoreboard, set scores, match stats, and key moments
 
 ## Data snapshot
 

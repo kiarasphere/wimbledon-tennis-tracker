@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { fetchWimbledonResults } from '../api'
+import { fetchLatestResults } from '../api'
 import type { TournamentResult, TournamentResultsResponse } from '../api'
 import { ContextHeader } from '../components/ContextHeader'
 import { ErrorState } from '../components/ErrorState'
@@ -70,7 +70,7 @@ const columns: StandingsColumn<TournamentResult>[] = [
   },
 ]
 
-export function WimbledonResults() {
+export function TournamentResults() {
   const [data, setData] = useState<TournamentResultsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -80,11 +80,11 @@ export function WimbledonResults() {
     setError(null)
 
     try {
-      const response = await fetchWimbledonResults()
+      const response = await fetchLatestResults()
       setData(response)
     } catch (err) {
       setData(null)
-      setError(err instanceof Error ? err.message : 'Failed to load Wimbledon results')
+      setError(err instanceof Error ? err.message : 'Failed to load tournament results')
     } finally {
       setLoading(false)
     }
@@ -94,16 +94,20 @@ export function WimbledonResults() {
     void loadResults()
   }, [loadResults])
 
-  const subtitle = data?.context
-    ? `${data.context.year} · ${data.context.tournament_name ?? 'Wimbledon'} Men's Singles`
-    : undefined
+  const tournamentName = data?.context?.tournament_name
+  const eventName = data?.context?.event_name
+  const title = tournamentName ? `${tournamentName} Results` : 'Tournament Results'
+  const subtitle =
+    data?.context && eventName
+      ? `${data.context.year} · ${tournamentName ?? 'Latest tournament'} · ${eventName}`
+      : undefined
 
   return (
     <section className="page">
       <ContextHeader
-        title="Wimbledon Results"
+        title={title}
         context={data?.context ?? null}
-        eyebrow="Grand Slam"
+        eyebrow="Tournament"
         subtitle={subtitle}
       />
       {loading ? <LoadingState /> : null}

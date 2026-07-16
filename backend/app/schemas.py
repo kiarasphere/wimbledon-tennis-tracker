@@ -211,7 +211,7 @@ DATA_ROUTE_RESPONSE_MODELS: dict[str, type[BaseModel]] = {
     "/api/rankings/atp": PlayerRankingsResponse,
     "/api/rankings/wta": PlayerRankingsResponse,
     "/api/rankings/countries": CountryRankingsResponse,
-    "/api/results/wimbledon": TournamentResultsResponse,
+    "/api/results/latest": TournamentResultsResponse,
     "/api/players/{player_id}/season": PlayerSeasonResponse,
     "/api/match/final": FinalMatchResponse,
     "/api/health": HealthResponse,

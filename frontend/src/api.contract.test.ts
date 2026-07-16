@@ -121,7 +121,7 @@ const DATA_PATHS = [
   '/api/rankings/atp',
   '/api/rankings/wta',
   '/api/rankings/countries',
-  '/api/results/wimbledon',
+  '/api/results/latest',
   '/api/players/{player_id}/season',
 ] as const
 

@@ -85,8 +85,23 @@ curl -s http://localhost:8000/api/rankings/atp
 curl -s -o /dev/null -w "%{http_code}" http://localhost:5173
 ```
 
+### Step 6: Open in your browser
+
+Open the app in **your own browser** (your machine), not on a remote/cloud VM:
+
+```bash
+# macOS
+open http://localhost:5173
+# Linux
+xdg-open http://localhost:5173
+# Windows
+start http://localhost:5173
+```
+
+If the servers run on a remote/cloud VM, `http://localhost:5173` in your local browser will fail with `ERR_CONNECTION_REFUSED` — either run the app on your own machine (see the `run-app` skill) or forward the VM's ports 5173/8000 to your machine (e.g. `ssh -L 5173:localhost:5173 -L 8000:localhost:8000 <vm>`).
+
 Tell the user:
-- App URL: http://localhost:5173
+- App URL (open in your own browser): http://localhost:5173
 - API URL: http://localhost:8000
 - Pages: `/atp`, `/wta`, `/countries`, `/results`, `/players/:playerId`, `/final`
 

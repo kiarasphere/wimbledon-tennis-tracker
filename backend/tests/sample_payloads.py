@@ -67,7 +67,7 @@ SAMPLE_COUNTRY_RANKINGS: dict[str, Any] = {
     ],
 }
 
-SAMPLE_WIMBLEDON_RESULTS: dict[str, Any] = {
+SAMPLE_LATEST_RESULTS: dict[str, Any] = {
     "context": {**SAMPLE_CONTEXT, "event_name": "Men's Singles", "date_start": "2026-07-12"},
     "results": [
         {

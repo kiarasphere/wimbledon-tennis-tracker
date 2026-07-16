@@ -82,7 +82,7 @@ export const mockCountryRankings: CountryRankingsResponse = {
   ],
 }
 
-export const mockWimbledonResults: TournamentResultsResponse = {
+export const mockLatestResults: TournamentResultsResponse = {
   context: { ...mockContext, event_name: "Men's Singles", date_start: '2026-07-12' },
   results: [
     {

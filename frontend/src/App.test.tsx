@@ -8,7 +8,7 @@ import {
   mockAtpRankings,
   mockCountryRankings,
   mockFinalMatch,
-  mockWimbledonResults,
+  mockLatestResults,
   mockWtaRankings,
 } from './test/fixtures'
 
@@ -16,7 +16,7 @@ vi.mock('./api', () => ({
   fetchAtpRankings: vi.fn(),
   fetchWtaRankings: vi.fn(),
   fetchCountryRankings: vi.fn(),
-  fetchWimbledonResults: vi.fn(),
+  fetchLatestResults: vi.fn(),
   fetchFinalMatch: vi.fn(),
   fetchPlayerSeason: vi.fn(),
 }))
@@ -34,7 +34,7 @@ describe('App', () => {
     vi.mocked(api.fetchAtpRankings).mockResolvedValue(mockAtpRankings)
     vi.mocked(api.fetchWtaRankings).mockResolvedValue(mockWtaRankings)
     vi.mocked(api.fetchCountryRankings).mockResolvedValue(mockCountryRankings)
-    vi.mocked(api.fetchWimbledonResults).mockResolvedValue(mockWimbledonResults)
+    vi.mocked(api.fetchLatestResults).mockResolvedValue(mockLatestResults)
     vi.mocked(api.fetchFinalMatch).mockResolvedValue(mockFinalMatch)
   })
 
@@ -57,11 +57,11 @@ describe('App', () => {
     await user.click(screen.getByRole('link', { name: 'Countries' }))
     expect(await screen.findByRole('heading', { name: 'Country Rankings' })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('link', { name: 'Wimbledon' }))
+    await user.click(screen.getByRole('link', { name: 'Results' }))
     expect(await screen.findByRole('heading', { name: 'Wimbledon Results' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: 'Final' }))
-    expect(await screen.findByRole('heading', { name: 'Wimbledon Final' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Wimbledon 2026 Final' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Final' })).toHaveClass('active')
 
     await user.click(screen.getByRole('link', { name: 'ATP' }))

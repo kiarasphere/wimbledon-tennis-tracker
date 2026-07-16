@@ -77,10 +77,10 @@
         }
       }
     },
-    "/api/results/wimbledon": {
+    "/api/results/latest": {
       "get": {
-        "summary": "Wimbledon Results",
-        "operationId": "wimbledon_results_api_results_wimbledon_get",
+        "summary": "Latest Results",
+        "operationId": "latest_results_api_results_latest_get",
         "responses": {
           "200": {
             "description": "Successful Response",

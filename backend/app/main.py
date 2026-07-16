@@ -47,9 +47,9 @@ async def country_rankings() -> CountryRankingsResponse:
     return CountryRankingsResponse.model_validate(tennis_data.get_country_rankings())
 
 
-@app.get("/api/results/wimbledon", response_model=TournamentResultsResponse)
-async def wimbledon_results() -> TournamentResultsResponse:
-    return TournamentResultsResponse.model_validate(tennis_data.get_wimbledon_results())
+@app.get("/api/results/latest", response_model=TournamentResultsResponse)
+async def latest_results() -> TournamentResultsResponse:
+    return TournamentResultsResponse.model_validate(tennis_data.get_latest_results())
 
 
 @app.get("/api/players/{player_id}/season", response_model=PlayerSeasonResponse)
