@@ -1,5 +1,5 @@
 ---
-name: run
+name: run-app
 description: Run the Tennis Tracker app locally — FastAPI backend (port 8000) and Vite/React frontend (port 5173), plus how to run tests and lint. Use when the user asks how to run, start, launch, or serve the app locally, or how to run its tests/lint.
 ---
 
