@@ -5,6 +5,8 @@ export interface StandingsColumn<T> {
   header: string
   render: (row: T) => ReactNode
   className?: string
+  /** When true, shows sort arrows that look interactive. */
+  sortable?: boolean
 }
 
 interface StandingsTableProps<T> {
@@ -35,7 +37,16 @@ export function StandingsTable<T>({
           <tr>
             {columns.map((column) => (
               <th key={column.key} className={column.className}>
-                {column.header}
+                {column.sortable ? (
+                  <button type="button" className="sortable-header">
+                    <span>{column.header}</span>
+                    <span className="sort-arrows" aria-hidden="true">
+                      ↕
+                    </span>
+                  </button>
+                ) : (
+                  column.header
+                )}
               </th>
             ))}
           </tr>
