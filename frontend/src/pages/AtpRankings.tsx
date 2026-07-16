@@ -5,6 +5,7 @@ import type { PlayerStanding, PlayerRankingsResponse } from '../api'
 import { ContextHeader } from '../components/ContextHeader'
 import { ErrorState } from '../components/ErrorState'
 import { LoadingState } from '../components/LoadingState'
+import { PlayerNameSearch } from '../components/PlayerNameSearch'
 import {
   CountryBadge,
   PointsDelta,
@@ -13,6 +14,7 @@ import {
   StandingsTable,
   type StandingsColumn,
 } from '../components/StandingsTable'
+import { usePlayerNameSearch } from '../hooks/usePlayerNameSearch'
 
 const columns: StandingsColumn<PlayerStanding>[] = [
   {
@@ -54,6 +56,7 @@ export function AtpRankings() {
   const [data, setData] = useState<PlayerRankingsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const { query, setQuery, filtered } = usePlayerNameSearch(data?.standings ?? [])
 
   const loadRankings = useCallback(async () => {
     setLoading(true)
@@ -74,17 +77,25 @@ export function AtpRankings() {
     void loadRankings()
   }, [loadRankings])
 
+  const emptyMessage = query.trim()
+    ? `No players match “${query.trim()}”.`
+    : 'No data available yet.'
+
   return (
     <section className="page">
       <ContextHeader title="ATP Rankings" context={data?.context ?? null} />
       {loading ? <LoadingState /> : null}
       {!loading && error ? <ErrorState message={error} onRetry={loadRankings} /> : null}
       {!loading && !error && data ? (
-        <StandingsTable
-          columns={columns}
-          rows={data.standings}
-          rowKey={(row) => row.player_id}
-        />
+        <>
+          <PlayerNameSearch value={query} onChange={setQuery} id="atp-player-search" />
+          <StandingsTable
+            columns={columns}
+            rows={filtered}
+            rowKey={(row) => row.player_id}
+            emptyMessage={emptyMessage}
+          />
+        </>
       ) : null}
     </section>
   )

@@ -68,4 +68,62 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'ATP Rankings' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ATP' })).toHaveClass('active')
   })
+
+  it('filters ATP rankings by player name without extra API calls', async () => {
+    const user = userEvent.setup()
+    renderApp('/atp')
+
+    expect(await screen.findByText('Jannik Sinner')).toBeInTheDocument()
+    expect(screen.getByText('Alexander Zverev')).toBeInTheDocument()
+    const callsAfterLoad = vi.mocked(api.fetchAtpRankings).mock.calls.length
+
+    const search = screen.getByRole('searchbox', { name: 'Search players' })
+    await user.type(search, 'sinner')
+
+    expect(screen.getByText('Jannik Sinner')).toBeInTheDocument()
+    expect(screen.queryByText('Alexander Zverev')).not.toBeInTheDocument()
+    expect(search).toHaveValue('sinner')
+    expect(api.fetchAtpRankings).toHaveBeenCalledTimes(callsAfterLoad)
+
+    await user.clear(search)
+    expect(screen.getByText('Jannik Sinner')).toBeInTheDocument()
+    expect(screen.getByText('Alexander Zverev')).toBeInTheDocument()
+    expect(api.fetchAtpRankings).toHaveBeenCalledTimes(callsAfterLoad)
+  })
+
+  it('restores ATP search from the URL query param', async () => {
+    renderApp('/atp?q=zverev')
+
+    expect(await screen.findByRole('searchbox', { name: 'Search players' })).toHaveValue('zverev')
+    expect(screen.getByText('Alexander Zverev')).toBeInTheDocument()
+    expect(screen.queryByText('Jannik Sinner')).not.toBeInTheDocument()
+  })
+
+  it('shows an empty state when no ATP players match', async () => {
+    const user = userEvent.setup()
+    renderApp('/atp')
+
+    await screen.findByText('Jannik Sinner')
+    await user.type(screen.getByRole('searchbox', { name: 'Search players' }), 'nadal')
+
+    expect(screen.getByRole('status')).toHaveTextContent('No players match “nadal”.')
+    expect(screen.queryByText('Jannik Sinner')).not.toBeInTheDocument()
+  })
+
+  it('filters WTA rankings by player name', async () => {
+    const user = userEvent.setup()
+    renderApp('/wta')
+
+    expect(await screen.findByText('Aryna Sabalenka')).toBeInTheDocument()
+    const callsAfterLoad = vi.mocked(api.fetchWtaRankings).mock.calls.length
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search players' }), 'sab')
+    expect(screen.getByText('Aryna Sabalenka')).toBeInTheDocument()
+    expect(api.fetchWtaRankings).toHaveBeenCalledTimes(callsAfterLoad)
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Search players' }))
+    await user.type(screen.getByRole('searchbox', { name: 'Search players' }), 'xyz')
+    expect(screen.getByRole('status')).toHaveTextContent('No players match “xyz”.')
+    expect(api.fetchWtaRankings).toHaveBeenCalledTimes(callsAfterLoad)
+  })
 })
