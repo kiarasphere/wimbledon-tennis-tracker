@@ -7,7 +7,7 @@ description: Investigate reported bugs, verify they exist, and create Jira Bug t
 
 File verified bugs in Jira project **TABT** (Tennis App Bug Tracking). Never create a ticket until the bug is confirmed.
 
-For feature ideas, use issue type **New Feature** instead of Bug.
+For feature requests, use `write-jira-feature-ticket` instead.
 
 ## Workflow
 
@@ -32,7 +32,7 @@ Task Progress:
 3. Optionally search for duplicates with `searchJiraIssuesUsingJql` before creating.
 4. Create the issue with `createJiraIssue`:
    - `projectKey`: **TABT**
-   - `issueTypeName`: `Bug` (or `New Feature` for feature requests)
+   - `issueTypeName`: **Bug**
    - `summary` / `description`: follow the format below
    - `contentFormat`: `markdown`
    - `additional_fields`: priority and labels as appropriate
@@ -119,7 +119,7 @@ Parity gap — results page links players that the season endpoint cannot resolv
 
 ## Rules
 
-- Only create tickets for **verified** bugs (or clearly scoped feature requests).
-- Use project **TABT** — Bugs for defects, **New Feature** for enhancements.
+- Only create tickets for **verified** bugs.
+- Use project **TABT** with issue type **Bug** — not New Feature (use `write-jira-feature-ticket` for enhancements).
 - Prefer one issue per ticket; do not bundle unrelated failures.
 - Show the user the draft summary/description before creating if they asked to review first; otherwise create after verification and share the result.
