@@ -68,4 +68,36 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'ATP Rankings' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ATP' })).toHaveClass('active')
   })
+
+  it('filters ATP rankings by player name and clears the search', async () => {
+    const user = userEvent.setup()
+    renderApp('/atp')
+
+    await screen.findByText('Jannik Sinner')
+    expect(screen.getByText('Alexander Zverev')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Search players'), 'sinner')
+
+    expect(await screen.findByText('Jannik Sinner')).toBeInTheDocument()
+    expect(screen.queryByText('Alexander Zverev')).not.toBeInTheDocument()
+    expect(screen.getByText('Showing 1 of 2')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Clear search' }))
+
+    expect(await screen.findByText('Alexander Zverev')).toBeInTheDocument()
+    expect(screen.getByText('Jannik Sinner')).toBeInTheDocument()
+  })
+
+  it('shows an empty state when the WTA search has no matches', async () => {
+    const user = userEvent.setup()
+    renderApp('/wta')
+
+    await screen.findByText('Aryna Sabalenka')
+    await user.type(screen.getByLabelText('Search players'), 'swiatek')
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'No players match your search.',
+    )
+    expect(screen.queryByText('Aryna Sabalenka')).not.toBeInTheDocument()
+  })
 })

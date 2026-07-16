@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { fetchWtaRankings } from '../api'
 import type { PlayerStanding, PlayerRankingsResponse } from '../api'
 import { ContextHeader } from '../components/ContextHeader'
 import { ErrorState } from '../components/ErrorState'
 import { LoadingState } from '../components/LoadingState'
+import { PlayerSearchBar } from '../components/PlayerSearchBar'
 import {
   CountryBadge,
   PointsDelta,
@@ -12,6 +13,7 @@ import {
   StandingsTable,
   type StandingsColumn,
 } from '../components/StandingsTable'
+import { filterStandingsByName } from '../lib/filterStandingsByName'
 
 const columns: StandingsColumn<PlayerStanding>[] = [
   {
@@ -53,6 +55,8 @@ export function WtaRankings() {
   const [data, setData] = useState<PlayerRankingsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const deferredQuery = useDeferredValue(searchQuery)
 
   const loadRankings = useCallback(async () => {
     setLoading(true)
@@ -73,17 +77,34 @@ export function WtaRankings() {
     void loadRankings()
   }, [loadRankings])
 
+  const filteredStandings = data
+    ? filterStandingsByName(data.standings, deferredQuery)
+    : []
+
   return (
     <section className="page">
       <ContextHeader title="WTA Rankings" context={data?.context ?? null} eyebrow="Women's Tennis" />
       {loading ? <LoadingState /> : null}
       {!loading && error ? <ErrorState message={error} onRetry={loadRankings} /> : null}
       {!loading && !error && data ? (
-        <StandingsTable
-          columns={columns}
-          rows={data.standings}
-          rowKey={(row) => row.player_id}
-        />
+        <>
+          <PlayerSearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            resultCount={filteredStandings.length}
+            totalCount={data.standings.length}
+          />
+          <StandingsTable
+            columns={columns}
+            rows={filteredStandings}
+            rowKey={(row) => row.player_id}
+            emptyMessage={
+              deferredQuery.trim()
+                ? 'No players match your search.'
+                : 'No data available yet.'
+            }
+          />
+        </>
       ) : null}
     </section>
   )
