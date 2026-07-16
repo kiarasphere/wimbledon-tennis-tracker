@@ -17,7 +17,7 @@ Task Progress:
 - [ ] Step 2: Transition to In Progress
 - [ ] Step 3: Plan the implementation
 - [ ] Step 4: Build
-- [ ] Step 5: Verify
+- [ ] Step 5: Verify (bugs: record demo video)
 - [ ] Step 6: Transition to In Review and comment
 ```
 
@@ -47,9 +47,9 @@ Plan should cover:
 2. **Approach** — files/modules to touch (`tennis_data.py`, `main.py`, `schemas.py`, pages, `api.ts`, styles).
 3. **Steps** — ordered implementation checklist.
 4. **Risks / edge cases** — hardcoded data gaps, ATP/WTA parity, 404 paths, regressions in tests.
-5. **Done looks like** — how you will verify (tests, manual checks, endpoints).
+5. **Done looks like** — how you will verify (tests, manual checks, endpoints; for Bugs, include a demo video of the fix).
 
-For Bugs: map Expected vs Actual and Evidence to a root-cause hypothesis before coding.  
+For Bugs: map Expected vs Actual and Evidence to a root-cause hypothesis before coding. Plan to record a short demo video after the fix.  
 For New Features / Stories: map acceptance criteria to concrete code and data changes.
 
 Respect project rules (API rate limits, single gateway client, one fetch per screen, etc.) in the plan.
@@ -72,6 +72,7 @@ cd frontend && npm test && npm run lint
 ```
 
 3. Fix issues you introduced before moving on.
+4. **Bugs only — generate a demo video (required):** After the fix works, always record a short walkthrough that shows the corrected behavior (follow the ticket's Steps to Reproduce and show Expected). Use screen recording / computer-use tooling available in the environment (e.g. `RecordScreen` + UI walkthrough). Do not skip this for Bug tickets. Include the video (or a clear path/link to it) when you report back and in the Jira comment. If recording is impossible in the environment, say so explicitly in the Jira comment and user reply — do not silently omit it.
 
 ### Step 6: Transition to In Review and comment
 
@@ -91,10 +92,12 @@ cd frontend && npm test && npm run lint
 **Verification:**
 - <how it was checked>
 
+**Demo video (bugs):** <path, link, or "could not record: <reason>">
+
 **Notes:** <follow-ups or out-of-scope items, if any>
 ```
 
-5. Return to the user: issue key, new status, brief what shipped, and the issue URL if known.
+5. Return to the user: issue key, new status, brief what shipped, the issue URL if known, and — for Bug tickets — the demo video (or why it could not be recorded).
 
 ## Status transition rules
 
@@ -115,3 +118,4 @@ cd frontend && npm test && npm run lint
 - Prefer the project **TABT** when disambiguating keys.
 - If implementation is blocked mid-way, leave a Jira comment explaining the blocker; keep status **In Progress** (do not move to In Review).
 - Do not commit or open a PR unless the user asks.
+- **Bug fixes require a demo video** — always generate/record one after verifying the fix (see Step 5). Non-bug issue types do not require a video unless the ticket asks for one.
