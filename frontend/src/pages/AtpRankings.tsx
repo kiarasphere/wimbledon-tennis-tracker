@@ -5,6 +5,7 @@ import type { PlayerStanding, PlayerRankingsResponse } from '../api'
 import { ContextHeader } from '../components/ContextHeader'
 import { ErrorState } from '../components/ErrorState'
 import { LoadingState } from '../components/LoadingState'
+import { PlayerSearchBar } from '../components/PlayerSearchBar'
 import {
   CountryBadge,
   PointsDelta,
@@ -13,6 +14,8 @@ import {
   StandingsTable,
   type StandingsColumn,
 } from '../components/StandingsTable'
+import { usePlayerSearchQuery } from '../hooks/usePlayerSearchQuery'
+import { filterPlayerStandings } from '../lib/filterPlayerStandings'
 
 const columns: StandingsColumn<PlayerStanding>[] = [
   {
@@ -54,6 +57,7 @@ export function AtpRankings() {
   const [data, setData] = useState<PlayerRankingsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [query, setQuery] = usePlayerSearchQuery()
 
   const loadRankings = useCallback(async () => {
     setLoading(true)
@@ -74,17 +78,32 @@ export function AtpRankings() {
     void loadRankings()
   }, [loadRankings])
 
+  const filteredStandings = data ? filterPlayerStandings(data.standings, query) : []
+
   return (
     <section className="page">
       <ContextHeader title="ATP Rankings" context={data?.context ?? null} />
       {loading ? <LoadingState /> : null}
       {!loading && error ? <ErrorState message={error} onRetry={loadRankings} /> : null}
       {!loading && !error && data ? (
-        <StandingsTable
-          columns={columns}
-          rows={data.standings}
-          rowKey={(row) => row.player_id}
-        />
+        <>
+          <PlayerSearchBar
+            value={query}
+            onChange={setQuery}
+            resultCount={filteredStandings.length}
+            totalCount={data.standings.length}
+          />
+          <StandingsTable
+            columns={columns}
+            rows={filteredStandings}
+            rowKey={(row) => row.player_id}
+            emptyMessage={
+              query.trim()
+                ? `No players match “${query.trim()}”.`
+                : 'No data available yet.'
+            }
+          />
+        </>
       ) : null}
     </section>
   )
