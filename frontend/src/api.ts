@@ -219,12 +219,56 @@ async function fetchJson<T>(path: string, options?: FetchOptions): Promise<T> {
   }
 }
 
+type RankingsCacheKey = '/api/rankings/atp' | '/api/rankings/wta'
+
+const rankingsCache = new Map<RankingsCacheKey, PlayerRankingsResponse>()
+const rankingsInflight = new Map<RankingsCacheKey, Promise<PlayerRankingsResponse>>()
+
+async function fetchCachedRankings(
+  path: RankingsCacheKey,
+  options?: FetchOptions,
+): Promise<PlayerRankingsResponse> {
+  if (options?.signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError')
+  }
+
+  const cached = rankingsCache.get(path)
+  if (cached) {
+    return cached
+  }
+
+  const inflight = rankingsInflight.get(path)
+  if (inflight) {
+    return inflight
+  }
+
+  const request = fetchJson<PlayerRankingsResponse>(path, options)
+    .then((data) => {
+      rankingsCache.set(path, data)
+      rankingsInflight.delete(path)
+      return data
+    })
+    .catch((err) => {
+      rankingsInflight.delete(path)
+      throw err
+    })
+
+  rankingsInflight.set(path, request)
+  return request
+}
+
+/** Clears in-memory ATP/WTA rankings cache (used by tests). */
+export function clearRankingsCache(): void {
+  rankingsCache.clear()
+  rankingsInflight.clear()
+}
+
 export function fetchAtpRankings(options?: FetchOptions): Promise<PlayerRankingsResponse> {
-  return fetchJson<PlayerRankingsResponse>('/api/rankings/atp', options)
+  return fetchCachedRankings('/api/rankings/atp', options)
 }
 
 export function fetchWtaRankings(options?: FetchOptions): Promise<PlayerRankingsResponse> {
-  return fetchJson<PlayerRankingsResponse>('/api/rankings/wta', options)
+  return fetchCachedRankings('/api/rankings/wta', options)
 }
 
 export function fetchCountryRankings(options?: FetchOptions): Promise<CountryRankingsResponse> {

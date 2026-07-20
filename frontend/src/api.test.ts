@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchAtpRankings, fetchPlayerSeason } from './api'
+import { clearRankingsCache, fetchAtpRankings, fetchPlayerSeason, fetchWtaRankings } from './api'
 
 describe('fetchJson error handling', () => {
   afterEach(() => {
+    clearRankingsCache()
     vi.unstubAllGlobals()
     vi.useRealTimers()
   })
@@ -86,6 +87,43 @@ describe('fetchJson error handling', () => {
 
     controller.abort()
     await expect(pending).rejects.toSatisfy(isAbortErrorLike)
+  })
+})
+
+describe('rankings response cache', () => {
+  afterEach(() => {
+    clearRankingsCache()
+    vi.unstubAllGlobals()
+  })
+
+  it('reuses a successful ATP rankings response without another network call', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ context: {}, standings: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await fetchAtpRankings()
+    await fetchAtpRankings()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('caches ATP and WTA rankings separately', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ context: {}, standings: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await Promise.all([fetchAtpRankings(), fetchWtaRankings()])
+    await Promise.all([fetchAtpRankings(), fetchWtaRankings()])
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock).toHaveBeenCalledWith('/api/rankings/atp', expect.anything())
+    expect(fetchMock).toHaveBeenCalledWith('/api/rankings/wta', expect.anything())
   })
 })
 
