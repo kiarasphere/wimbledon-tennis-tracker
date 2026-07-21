@@ -3,6 +3,7 @@ import { fetchWtaRankings } from '../api'
 import type { PlayerStanding, PlayerRankingsResponse } from '../api'
 import { ContextHeader } from '../components/ContextHeader'
 import { ErrorState } from '../components/ErrorState'
+import { FavoriteStar } from '../components/FavoriteStar'
 import { LoadingState } from '../components/LoadingState'
 import {
   CountryBadge,
@@ -14,6 +15,17 @@ import {
 } from '../components/StandingsTable'
 
 const columns: StandingsColumn<PlayerStanding>[] = [
+  {
+    key: 'favorite',
+    header: '',
+    className: 'col-fav',
+    render: (row) => (
+      <FavoriteStar
+        playerId={row.player_id}
+        playerName={row.full_name ?? `Player ${row.player_id}`}
+      />
+    ),
+  },
   {
     key: 'position',
     header: 'Rank',

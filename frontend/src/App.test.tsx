@@ -64,8 +64,25 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Wimbledon 2026 Final' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Final' })).toHaveClass('active')
 
+    await user.click(screen.getByRole('link', { name: 'Favorites' }))
+    expect(await screen.findByRole('heading', { name: 'Favorites' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Favorites' })).toHaveClass('active')
+
     await user.click(screen.getByRole('link', { name: 'ATP' }))
     expect(await screen.findByRole('heading', { name: 'ATP Rankings' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ATP' })).toHaveClass('active')
+  })
+
+  it('shows favorite stars on ATP rankings and persists toggles', async () => {
+    const user = userEvent.setup()
+    window.localStorage.clear()
+    renderApp('/atp')
+
+    await screen.findByRole('heading', { name: 'ATP Rankings' })
+    const star = await screen.findByRole('button', { name: 'Add Jannik Sinner to favorites' })
+    await user.click(star)
+
+    expect(screen.getByRole('button', { name: 'Remove Jannik Sinner from favorites' })).toBeInTheDocument()
+    expect(window.localStorage.getItem('tennis-tracker-favorites')).toBe('[1]')
   })
 })

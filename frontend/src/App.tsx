@@ -3,6 +3,7 @@ import { BrandMark } from './components/BrandMark'
 import { AtpRankings } from './pages/AtpRankings'
 import { WtaRankings } from './pages/WtaRankings'
 import { CountryRankings } from './pages/CountryRankings'
+import { Favorites } from './pages/Favorites'
 import { PlayerProfile } from './pages/PlayerProfile'
 import { TournamentResults } from './pages/TournamentResults'
 import { FinalMatch } from './pages/FinalMatch'
@@ -35,6 +36,9 @@ function App() {
           <NavLink to="/final" className={({ isActive }) => (isActive ? 'active' : undefined)}>
             Final
           </NavLink>
+          <NavLink to="/favorites" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+            Favorites
+          </NavLink>
         </nav>
       </header>
       <main className="main-content">
@@ -46,6 +50,7 @@ function App() {
           <Route path="/countries" element={<CountryRankings />} />
           <Route path="/results" element={<TournamentResults />} />
           <Route path="/final" element={<FinalMatch />} />
+          <Route path="/favorites" element={<Favorites />} />
         </Routes>
       </main>
     </div>
