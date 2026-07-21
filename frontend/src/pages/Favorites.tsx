@@ -63,16 +63,16 @@ const columns: StandingsColumn<FavoritePlayerRow>[] = [
 
 export function Favorites() {
   const { favoriteIds } = useFavorites()
+  const hasFavorites = favoriteIds.length > 0
   const [playersById, setPlayersById] = useState<Map<number, FavoritePlayerRow>>(new Map())
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
-    if (favoriteIds.length === 0) {
+    if (!hasFavorites) {
       setLoading(false)
       setError(null)
-      setPlayersById(new Map())
       return
     }
 
@@ -114,7 +114,7 @@ export function Favorites() {
       active = false
       controller.abort()
     }
-  }, [reloadKey, favoriteIds.length])
+  }, [reloadKey, hasFavorites])
 
   const rows: FavoritePlayerRow[] = favoriteIds.map((playerId) => {
     const known = playersById.get(playerId)
