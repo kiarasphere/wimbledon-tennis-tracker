@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { fetchPlayerSeason, isAbortError } from '../api'
 import type { PlayerSeasonResponse, PlayerSeasonRound } from '../api'
 import { ErrorState } from '../components/ErrorState'
+import { FavoriteButton } from '../components/FavoriteButton'
 import { LoadingState } from '../components/LoadingState'
 import {
   CountryBadge,
@@ -244,7 +245,14 @@ export function PlayerProfile() {
               )}
               <div>
                 <p className="eyebrow">Player profile</p>
-                <h1>{playerName}</h1>
+                <div className="profile-title-row">
+                  <h1>{playerName}</h1>
+                  <FavoriteButton
+                    playerId={data.player.player_id}
+                    playerName={data.player.full_name}
+                    className="favorite-button-lg"
+                  />
+                </div>
                 <p className="subtitle">
                   {data.player.name_acronym} · {data.context.year} season
                 </p>

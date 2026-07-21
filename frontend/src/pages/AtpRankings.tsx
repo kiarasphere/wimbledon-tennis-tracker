@@ -5,6 +5,7 @@ import type { PlayerStanding, PlayerRankingsResponse } from '../api'
 import { ContextHeader } from '../components/ContextHeader'
 import { ErrorState } from '../components/ErrorState'
 import { LoadingState } from '../components/LoadingState'
+import { FavoriteButton } from '../components/FavoriteButton'
 import {
   CountryBadge,
   PointsDelta,
@@ -15,6 +16,14 @@ import {
 } from '../components/StandingsTable'
 
 const columns: StandingsColumn<PlayerStanding>[] = [
+  {
+    key: 'favorite',
+    header: '',
+    className: 'col-favorite',
+    render: (row) => (
+      <FavoriteButton playerId={row.player_id} playerName={row.full_name} />
+    ),
+  },
   {
     key: 'position',
     header: 'Rank',

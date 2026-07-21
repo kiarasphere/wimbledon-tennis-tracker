@@ -248,6 +248,60 @@
   width: 4.5rem;
 }
 
+.col-favorite {
+  width: 2.75rem;
+  text-align: center;
+}
+
+.col-tour {
+  width: 4rem;
+}
+
+.favorite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-subtle);
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.favorite-button:hover {
+  color: var(--gold);
+  background: rgba(224, 193, 90, 0.12);
+  transform: scale(1.06);
+}
+
+.favorite-button.is-favorite {
+  color: var(--gold);
+}
+
+.favorite-button-lg {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+.favorite-star {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.favorite-button-lg .favorite-star {
+  font-size: 1.55rem;
+}
+
+.profile-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .col-points {
   width: 8rem;
   text-align: right;
