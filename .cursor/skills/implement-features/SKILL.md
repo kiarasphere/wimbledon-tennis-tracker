@@ -19,7 +19,7 @@ Task Progress:
 - [ ] Step 2: Transition to In Progress
 - [ ] Step 3: Plan the feature (AC → design → code)
 - [ ] Step 4: Build
-- [ ] Step 5: Verify against acceptance criteria
+- [ ] Step 5: Verify against acceptance criteria + record demo video and screenshot
 - [ ] Step 6: Transition to In Review and comment
 ```
 
@@ -60,7 +60,7 @@ Plan should cover:
 5. **Steps** — ordered implementation checklist (backend → API client → UI → tests is a good default).
 6. **Out of scope** — explicitly list what you will not build (from the ticket + anything you are deferring).
 7. **Risks / edge cases** — rate-limit rules, one-fetch-per-screen, missing snapshot fields, regressions.
-8. **Done looks like** — how you will verify each AC (tests, manual checks, endpoints). Demo video only if the ticket asks for one.
+8. **Done looks like** — how you will verify each AC (tests, manual checks, endpoints), plus a **required** demo video and screenshot of the shipped feature.
 
 Respect project rules (API rate limits, single gateway client, one fetch per screen, debounce lookups, etc.) in the plan.
 
@@ -73,7 +73,7 @@ Respect project rules (API rate limits, single gateway client, one fetch per scr
 5. For frontend behavior, add or update colocated tests when practical; keep UI consistent with the existing Tennis Tracker design system.
 6. Keep changes focused on the feature ticket.
 
-### Step 5: Verify against acceptance criteria
+### Step 5: Verify against acceptance criteria + capture demo artifacts
 
 1. Walk the ticket's **Acceptance Criteria** one by one — each must pass or be explicitly blocked with a reason.
 2. Run relevant tests or exercise the affected UI/API locally when practical:
@@ -84,7 +84,11 @@ cd frontend && npm test && npm run lint
 ```
 
 3. Fix issues you introduced before moving on.
-4. Optionally smoke-check the happy path in the running app (backend before frontend; see `run-dev-server`). Record a demo video only if the ticket or user asks for one.
+4. Smoke-check the happy path in the running app (backend before frontend; see `run-dev-server`).
+5. **Always capture both demo artifacts (required — do not skip):**
+   - **Screenshot** — at least one clear still of the shipped feature in the UI (happy path / primary AC). Prefer computer-use tooling; save under a durable path (e.g. `/opt/cursor/artifacts/screenshots/`).
+   - **Demo video** — a short walkthrough that shows the feature working end-to-end against the acceptance criteria. Use screen recording / computer-use tooling (e.g. `RecordScreen` + UI walkthrough).
+6. Include **both** the screenshot and the video (or clear paths/links) when you report back to the user and in the Jira comment. If either artifact is impossible to capture in the environment, say so explicitly in the Jira comment and user reply — do not silently omit them.
 
 ### Step 6: Transition to In Review and comment
 
@@ -108,10 +112,14 @@ cd frontend && npm test && npm run lint
 **Verification:**
 - <tests run / manual checks>
 
+**Screenshot:** <path, link, or "could not capture: <reason>">
+
+**Demo video:** <path, link, or "could not record: <reason>">
+
 **Out of scope / follow-ups:** <deferred items, if any>
 ```
 
-5. Return to the user: issue key, new status, brief what shipped (mapped to AC), and the issue URL if known.
+5. Return to the user: issue key, new status, brief what shipped (mapped to AC), the issue URL if known, and **both** the screenshot and demo video (or why either could not be captured).
 
 ## Status transition rules
 
@@ -142,4 +150,4 @@ cd frontend && npm test && npm run lint
 - Prefer the project **TABT** when disambiguating keys.
 - If implementation is blocked mid-way, leave a Jira comment explaining the blocker; keep status **In Progress** (do not move to In Review).
 - Do not commit or open a PR unless the user asks (or the environment/task explicitly requires it).
-- Demo video is **not** required for features unless the ticket or user requests one.
+- **Always include a demo video and a screenshot** — required for every feature implementation after verifying against AC (see Step 5). Never mark the feature done / move to In Review without capturing both (or explicitly documenting why capture failed).
