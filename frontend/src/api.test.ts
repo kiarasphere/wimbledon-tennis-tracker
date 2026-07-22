@@ -5,6 +5,7 @@ import {
   fetchPlayerSeason,
   fetchWtaRankings,
   isAbortError,
+  searchPlayers,
 } from './api'
 
 describe('local snapshot data access', () => {
@@ -48,5 +49,21 @@ describe('local snapshot data access', () => {
     await expect(fetchPlayerSeason(1, { signal: controller.signal })).rejects.toSatisfy(
       isAbortError,
     )
+  })
+
+  it('searches ATP and WTA players by name, acronym, or country', () => {
+    expect(searchPlayers('')).toEqual([])
+    expect(searchPlayers('   ')).toEqual([])
+
+    const byName = searchPlayers('sinner')
+    expect(byName[0]?.full_name).toBe('Jannik Sinner')
+    expect(byName[0]?.tour).toBe('ATP')
+
+    const byAcronym = searchPlayers('sab')
+    expect(byAcronym.some((player) => player.full_name === 'Aryna Sabalenka')).toBe(true)
+
+    const byCountry = searchPlayers('ita')
+    expect(byCountry.length).toBeGreaterThan(0)
+    expect(byCountry.every((player) => player.country?.toLowerCase() === 'ita')).toBe(true)
   })
 })

@@ -249,4 +249,55 @@ export async function fetchPlayerSeason(
   throw new Error('Player not found')
 }
 
+export type PlayerTour = 'ATP' | 'WTA'
+
+export interface PlayerSearchResult {
+  player_id: number
+  full_name: string | null
+  name_acronym: string | null
+  country: string | null
+  country_colour: string | null
+  photo_url: string | null
+  tour: PlayerTour
+  position: number
+}
+
+const SEARCHABLE_PLAYERS: PlayerSearchResult[] = [
+  ...data.atpRankings.standings.map((standing) => ({
+    player_id: standing.player_id,
+    full_name: standing.full_name,
+    name_acronym: standing.name_acronym,
+    country: standing.country,
+    country_colour: standing.country_colour,
+    photo_url: standing.photo_url,
+    tour: 'ATP' as const,
+    position: standing.position,
+  })),
+  ...data.wtaRankings.standings.map((standing) => ({
+    player_id: standing.player_id,
+    full_name: standing.full_name,
+    name_acronym: standing.name_acronym,
+    country: standing.country,
+    country_colour: standing.country_colour,
+    photo_url: standing.photo_url,
+    tour: 'WTA' as const,
+    position: standing.position,
+  })),
+]
+
+/** Client-side player lookup over the local ATP/WTA snapshot (no network). */
+export function searchPlayers(query: string, limit = 8): PlayerSearchResult[] {
+  const normalized = query.trim().toLowerCase()
+  if (!normalized) {
+    return []
+  }
+
+  return SEARCHABLE_PLAYERS.filter((player) => {
+    const name = player.full_name?.toLowerCase() ?? ''
+    const acronym = player.name_acronym?.toLowerCase() ?? ''
+    const country = player.country?.toLowerCase() ?? ''
+    return name.includes(normalized) || acronym.includes(normalized) || country.includes(normalized)
+  }).slice(0, limit)
+}
+
 export { isAbortError }
