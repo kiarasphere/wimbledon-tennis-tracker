@@ -68,4 +68,15 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'ATP Rankings' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ATP' })).toHaveClass('active')
   })
+
+  it('shows player search in the top nav on every route', async () => {
+    const user = userEvent.setup()
+    renderApp('/results')
+
+    expect(await screen.findByLabelText('Search players')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'Final' }))
+    expect(await screen.findByRole('heading', { name: 'Wimbledon 2026 Final' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Search players')).toBeInTheDocument()
+  })
 })
