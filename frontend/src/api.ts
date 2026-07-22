@@ -1,7 +1,10 @@
 /**
- * Response types for `/api/*` data routes.
- * Aligned with `backend/app/schemas.py`.
+ * Local data access for Tennis Tracker.
+ * Snapshot sourced from `backend/app/tennis_data.py` (15 July 2026).
+ * No network calls — safe for static Vercel deploys.
  */
+
+import snapshot from './data/snapshot.json' with { type: 'json' }
 
 export interface SeasonContext {
   year: number
@@ -166,22 +169,15 @@ export interface FetchOptions {
   timeoutMs?: number
 }
 
-const DEFAULT_FETCH_TIMEOUT_MS = 10_000
-
-function errorMessageFromBody(body: string, status: number): string {
-  const fallback = `Request failed with status ${status}`
-  if (!body) {
-    return fallback
-  }
-  try {
-    const parsed = JSON.parse(body) as { detail?: unknown }
-    if (typeof parsed.detail === 'string' && parsed.detail.trim()) {
-      return parsed.detail
-    }
-  } catch {
-    // Non-JSON error bodies fall through to the raw text.
-  }
-  return body
+const data = snapshot as {
+  atpRankings: PlayerRankingsResponse
+  wtaRankings: PlayerRankingsResponse
+  countryRankings: CountryRankingsResponse
+  latestResults: TournamentResultsResponse
+  finalMatch: FinalMatchResponse
+  playerSeasons: Record<string, PlayerSeasonResponse>
+  atpPlayerProfiles: Record<string, PlayerProfile>
+  context: SeasonContext
 }
 
 function isAbortError(err: unknown): boolean {
@@ -190,60 +186,67 @@ function isAbortError(err: unknown): boolean {
     : err instanceof Error && err.name === 'AbortError'
 }
 
-async function fetchJson<T>(path: string, options?: FetchOptions): Promise<T> {
-  const timeoutMs = options?.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS
-  const controller = new AbortController()
-  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs)
-
-  const onExternalAbort = () => controller.abort()
-  options?.signal?.addEventListener('abort', onExternalAbort)
-
-  try {
-    const response = await fetch(path, { signal: controller.signal })
-    if (!response.ok) {
-      const body = await response.text()
-      throw new Error(errorMessageFromBody(body, response.status))
-    }
-    return response.json() as Promise<T>
-  } catch (err) {
-    if (isAbortError(err)) {
-      if (options?.signal?.aborted) {
-        throw err
-      }
-      throw new Error('Request timed out — try again in a moment')
-    }
-    throw err
-  } finally {
-    window.clearTimeout(timeoutId)
-    options?.signal?.removeEventListener('abort', onExternalAbort)
+function assertNotAborted(options?: FetchOptions): void {
+  if (options?.signal?.aborted) {
+    throw new DOMException('Aborted', 'AbortError')
   }
 }
 
+async function resolveLocal<T>(value: T, options?: FetchOptions): Promise<T> {
+  assertNotAborted(options)
+  return value
+}
+
 export function fetchAtpRankings(options?: FetchOptions): Promise<PlayerRankingsResponse> {
-  return fetchJson<PlayerRankingsResponse>('/api/rankings/atp', options)
+  return resolveLocal(data.atpRankings, options)
 }
 
 export function fetchWtaRankings(options?: FetchOptions): Promise<PlayerRankingsResponse> {
-  return fetchJson<PlayerRankingsResponse>('/api/rankings/wta', options)
+  return resolveLocal(data.wtaRankings, options)
 }
 
 export function fetchCountryRankings(options?: FetchOptions): Promise<CountryRankingsResponse> {
-  return fetchJson<CountryRankingsResponse>('/api/rankings/countries', options)
+  return resolveLocal(data.countryRankings, options)
 }
 
 export function fetchLatestResults(options?: FetchOptions): Promise<TournamentResultsResponse> {
-  return fetchJson<TournamentResultsResponse>('/api/results/latest', options)
-}
-
-export function fetchPlayerSeason(
-  playerId: number,
-  options?: FetchOptions,
-): Promise<PlayerSeasonResponse> {
-  return fetchJson<PlayerSeasonResponse>(`/api/players/${playerId}/season`, options)
+  return resolveLocal(data.latestResults, options)
 }
 
 export function fetchFinalMatch(options?: FetchOptions): Promise<FinalMatchResponse> {
-  return fetchJson<FinalMatchResponse>('/api/match/final', options)
+  return resolveLocal(data.finalMatch, options)
+}
+
+export async function fetchPlayerSeason(
+  playerId: number,
+  options?: FetchOptions,
+): Promise<PlayerSeasonResponse> {
+  assertNotAborted(options)
+
+  const season = data.playerSeasons[String(playerId)]
+  if (season) {
+    return season
+  }
+
+  const profile = data.atpPlayerProfiles[String(playerId)]
+  if (profile) {
+    return {
+      context: data.context,
+      player: profile,
+      summary: {
+        titles: 0,
+        grand_slams: 0,
+        best_result: null,
+        best_result_tournament: null,
+        matches_won: 0,
+        matches_lost: 0,
+        win_pct: 0,
+      },
+      trajectory: [],
+    }
+  }
+
+  throw new Error('Player not found')
 }
 
 export { isAbortError }

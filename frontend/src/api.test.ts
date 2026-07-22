@@ -1,96 +1,52 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchAtpRankings, fetchPlayerSeason } from './api'
+import { describe, expect, it } from 'vitest'
+import {
+  fetchAtpRankings,
+  fetchFinalMatch,
+  fetchPlayerSeason,
+  fetchWtaRankings,
+  isAbortError,
+} from './api'
 
-describe('fetchJson error handling', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-    vi.useRealTimers()
+describe('local snapshot data access', () => {
+  it('returns ATP rankings from the hardcoded snapshot', async () => {
+    const response = await fetchAtpRankings()
+    expect(response.standings.length).toBeGreaterThan(0)
+    expect(response.standings[0]?.full_name).toBe('Jannik Sinner')
   })
 
-  it('parses FastAPI JSON detail instead of raw body text', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 404,
-        text: async () => JSON.stringify({ detail: 'Player not found' }),
-      }),
-    )
-
-    await expect(fetchAtpRankings()).rejects.toThrow('Player not found')
+  it('returns WTA rankings from the hardcoded snapshot', async () => {
+    const response = await fetchWtaRankings()
+    expect(response.standings[0]?.full_name).toBe('Aryna Sabalenka')
   })
 
-  it('falls back to raw text for non-JSON error bodies', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        text: async () => 'Internal Server Error',
-      }),
-    )
-
-    await expect(fetchAtpRankings()).rejects.toThrow('Internal Server Error')
+  it('returns final match details from the hardcoded snapshot', async () => {
+    const response = await fetchFinalMatch()
+    expect(response.match.winner.full_name).toBe('Jannik Sinner')
+    expect(response.match.runner_up.full_name).toBe('Alexander Zverev')
   })
 
-  it('uses a status fallback when the error body is empty', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 503,
-        text: async () => '',
-      }),
-    )
-
-    await expect(fetchAtpRankings()).rejects.toThrow('Request failed with status 503')
+  it('returns a full season profile when one exists', async () => {
+    const response = await fetchPlayerSeason(1)
+    expect(response.player.full_name).toBe('Jannik Sinner')
+    expect(response.trajectory.length).toBeGreaterThan(0)
   })
 
-  it('times out hung requests instead of spinning forever', async () => {
-    vi.useFakeTimers()
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockImplementation((_url: string, init?: RequestInit) => {
-        return new Promise((_resolve, reject) => {
-          init?.signal?.addEventListener('abort', () => {
-            reject(new DOMException('Aborted', 'AbortError'))
-          })
-        })
-      }),
-    )
-
-    const assertion = expect(fetchAtpRankings()).rejects.toThrow(
-      'Request timed out — try again in a moment',
-    )
-    await vi.advanceTimersByTimeAsync(10_000)
-    await assertion
+  it('falls back to a minimal ATP profile when season data is missing', async () => {
+    const response = await fetchPlayerSeason(5)
+    expect(response.player.full_name).toBe('Alex de Minaur')
+    expect(response.trajectory).toEqual([])
+    expect(response.summary.titles).toBe(0)
   })
 
-  it('forwards AbortSignal abort to fetch for player season requests', async () => {
-    const fetchMock = vi.fn().mockImplementation((_url: string, init?: RequestInit) => {
-      return new Promise((_resolve, reject) => {
-        init?.signal?.addEventListener('abort', () => {
-          reject(new DOMException('Aborted', 'AbortError'))
-        })
-      })
-    })
-    vi.stubGlobal('fetch', fetchMock)
+  it('throws when the player is unknown', async () => {
+    await expect(fetchPlayerSeason(99999)).rejects.toThrow('Player not found')
+  })
 
+  it('honors AbortSignal for player season requests', async () => {
     const controller = new AbortController()
-    const pending = fetchPlayerSeason(1, { signal: controller.signal })
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      '/api/players/1/season',
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    )
-
     controller.abort()
-    await expect(pending).rejects.toSatisfy(isAbortErrorLike)
+    await expect(fetchPlayerSeason(1, { signal: controller.signal })).rejects.toSatisfy(
+      isAbortError,
+    )
   })
 })
-
-function isAbortErrorLike(err: unknown): boolean {
-  return err instanceof DOMException
-    ? err.name === 'AbortError'
-    : err instanceof Error && err.name === 'AbortError'
-}
