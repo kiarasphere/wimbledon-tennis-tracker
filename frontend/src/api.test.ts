@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import {
+  clearRankingsCache,
   fetchAtpRankings,
   fetchFinalMatch,
   fetchPlayerSeason,
@@ -8,6 +9,10 @@ import {
 } from './api'
 
 describe('local snapshot data access', () => {
+  afterEach(() => {
+    clearRankingsCache()
+  })
+
   it('returns ATP rankings from the hardcoded snapshot', async () => {
     const response = await fetchAtpRankings()
     expect(response.standings.length).toBeGreaterThan(0)
@@ -18,6 +23,18 @@ describe('local snapshot data access', () => {
     const response = await fetchWtaRankings()
     expect(response.standings[0]?.full_name).toBe('Aryna Sabalenka')
   })
+
+  it('caches ATP and WTA rankings separately after the first load', async () => {
+    const atpFirst = await fetchAtpRankings()
+    const wtaFirst = await fetchWtaRankings()
+    const atpSecond = await fetchAtpRankings()
+    const wtaSecond = await fetchWtaRankings()
+
+    expect(atpSecond).toBe(atpFirst)
+    expect(wtaSecond).toBe(wtaFirst)
+    expect(atpFirst).not.toBe(wtaFirst)
+  })
+
 
   it('returns final match details from the hardcoded snapshot', async () => {
     const response = await fetchFinalMatch()

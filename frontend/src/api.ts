@@ -197,12 +197,55 @@ async function resolveLocal<T>(value: T, options?: FetchOptions): Promise<T> {
   return value
 }
 
+type RankingsCacheKey = 'atp' | 'wta'
+
+const rankingsCache = new Map<RankingsCacheKey, PlayerRankingsResponse>()
+const rankingsInflight = new Map<RankingsCacheKey, Promise<PlayerRankingsResponse>>()
+
+async function fetchCachedRankings(
+  key: RankingsCacheKey,
+  value: PlayerRankingsResponse,
+  options?: FetchOptions,
+): Promise<PlayerRankingsResponse> {
+  assertNotAborted(options)
+
+  const cached = rankingsCache.get(key)
+  if (cached) {
+    return cached
+  }
+
+  const inflight = rankingsInflight.get(key)
+  if (inflight) {
+    return inflight
+  }
+
+  const request = resolveLocal(value, options)
+    .then((resolved) => {
+      rankingsCache.set(key, resolved)
+      rankingsInflight.delete(key)
+      return resolved
+    })
+    .catch((err) => {
+      rankingsInflight.delete(key)
+      throw err
+    })
+
+  rankingsInflight.set(key, request)
+  return request
+}
+
+/** Clears in-memory ATP/WTA rankings cache (used by tests). */
+export function clearRankingsCache(): void {
+  rankingsCache.clear()
+  rankingsInflight.clear()
+}
+
 export function fetchAtpRankings(options?: FetchOptions): Promise<PlayerRankingsResponse> {
-  return resolveLocal(data.atpRankings, options)
+  return fetchCachedRankings('atp', data.atpRankings, options)
 }
 
 export function fetchWtaRankings(options?: FetchOptions): Promise<PlayerRankingsResponse> {
-  return resolveLocal(data.wtaRankings, options)
+  return fetchCachedRankings('wta', data.wtaRankings, options)
 }
 
 export function fetchCountryRankings(options?: FetchOptions): Promise<CountryRankingsResponse> {
