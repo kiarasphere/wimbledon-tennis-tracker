@@ -12,14 +12,18 @@ import {
   mockWtaRankings,
 } from './test/fixtures'
 
-vi.mock('./api', () => ({
-  fetchAtpRankings: vi.fn(),
-  fetchWtaRankings: vi.fn(),
-  fetchCountryRankings: vi.fn(),
-  fetchLatestResults: vi.fn(),
-  fetchFinalMatch: vi.fn(),
-  fetchPlayerSeason: vi.fn(),
-}))
+vi.mock('./api', async () => {
+  const actual = await vi.importActual<typeof import('./api')>('./api')
+  return {
+    ...actual,
+    fetchAtpRankings: vi.fn(),
+    fetchWtaRankings: vi.fn(),
+    fetchCountryRankings: vi.fn(),
+    fetchLatestResults: vi.fn(),
+    fetchFinalMatch: vi.fn(),
+    fetchPlayerSeason: vi.fn(),
+  }
+})
 
 function renderApp(initialPath = '/atp') {
   return render(
@@ -67,5 +71,12 @@ describe('App', () => {
     await user.click(screen.getByRole('link', { name: 'ATP' }))
     expect(await screen.findByRole('heading', { name: 'ATP Rankings' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'ATP' })).toHaveClass('active')
+  })
+
+  it('renders a player search bar in the top nav', async () => {
+    renderApp('/atp')
+
+    await screen.findByRole('heading', { name: 'ATP Rankings' })
+    expect(screen.getByRole('combobox', { name: 'Search players' })).toBeInTheDocument()
   })
 })

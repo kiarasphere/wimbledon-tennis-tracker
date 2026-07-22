@@ -1,5 +1,6 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import { BrandMark } from './components/BrandMark'
+import { PlayerSearch } from './components/PlayerSearch'
 import { AtpRankings } from './pages/AtpRankings'
 import { WtaRankings } from './pages/WtaRankings'
 import { CountryRankings } from './pages/CountryRankings'
@@ -19,6 +20,7 @@ function App() {
             <p className="brand-subtitle">Season snapshot · 15 July 2026</p>
           </div>
         </div>
+        <PlayerSearch />
         <nav className="nav-links" aria-label="Primary">
           <NavLink to="/atp" className={({ isActive }) => (isActive ? 'active' : undefined)}>
             ATP
