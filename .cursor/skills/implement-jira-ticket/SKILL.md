@@ -7,7 +7,7 @@ description: Implement an existing Jira ticket end-to-end — fetch the issue, p
 
 Take an **existing** Jira issue and ship it. Do not create tickets (use `write-jira-bug-ticket` for bugs or `write-jira-feature-ticket` for features). Always plan before coding; no approval gate — plan, then build.
 
-For **New Feature** / enhancement tickets, prefer `.cursor/skills/implement-features/SKILL.md` — it is specialized for AC-driven feature delivery. Use this skill for Bugs (and general tickets when `implement-features` does not apply).
+For **New Feature** / enhancement tickets, prefer `.cursor/skills/implement-features/SKILL.md` — it is specialized for AC-driven feature delivery and **always requires a demo video and a screenshot**. Use this skill for Bugs (and general tickets when `implement-features` does not apply).
 
 Bug tickets often follow `.cursor/skills/write-jira-bug-ticket/SKILL.md` (Summary, Steps to Reproduce, Expected/Actual, Environment, Evidence, Notes). New Feature tickets follow `.cursor/skills/write-jira-feature-ticket/SKILL.md` (Summary, Problem/Opportunity, Proposed Solution, User Stories, Acceptance Criteria). Use whichever structure matches the issue type.
 
@@ -49,10 +49,10 @@ Plan should cover:
 2. **Approach** — files/modules to touch (`tennis_data.py`, `main.py`, `schemas.py`, pages, `api.ts`, styles).
 3. **Steps** — ordered implementation checklist.
 4. **Risks / edge cases** — hardcoded data gaps, ATP/WTA parity, 404 paths, regressions in tests.
-5. **Done looks like** — how you will verify (tests, manual checks, endpoints; for Bugs, include a demo video of the fix).
+5. **Done looks like** — how you will verify (tests, manual checks, endpoints; for Bugs, include a demo video of the fix; for New Features, use `implement-features` which requires a demo video **and** a screenshot).
 
 For Bugs: map Expected vs Actual and Evidence to a root-cause hypothesis before coding. Plan to record a short demo video after the fix.  
-For New Features / Stories: map acceptance criteria to concrete code and data changes.
+For New Features / Stories: switch to `implement-features` when practical; that skill requires both a demo video and a screenshot.
 
 Respect project rules (API rate limits, single gateway client, one fetch per screen, etc.) in the plan.
 
@@ -120,4 +120,5 @@ cd frontend && npm test && npm run lint
 - Prefer the project **TABT** when disambiguating keys.
 - If implementation is blocked mid-way, leave a Jira comment explaining the blocker; keep status **In Progress** (do not move to In Review).
 - Do not commit or open a PR unless the user asks.
-- **Bug fixes require a demo video** — always generate/record one after verifying the fix (see Step 5). Non-bug issue types do not require a video unless the ticket asks for one.
+- **Bug fixes require a demo video** — always generate/record one after verifying the fix (see Step 5).
+- **New Features require a demo video and a screenshot** — use `implement-features`; do not skip those artifacts for feature work.
