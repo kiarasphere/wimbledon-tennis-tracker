@@ -2,16 +2,16 @@
 
 ## Cursor Cloud specific instructions
 
-Tennis Tracker is a two-process dev app: a FastAPI backend (`backend/`, port 8000) and a Vite/React frontend (`frontend/`, port 5173). The frontend proxies `/api` to the backend. Standard install/run/lint commands live in `README.md`, `frontend/package.json`, and `.cursor/skills/run-dev-server/SKILL.md` — use those; the notes below only cover non-obvious caveats.
+Tennis Tracker is a **frontend-only** Vite/React app (`frontend/`, port 5173). Data is hardcoded in `frontend/src/data/snapshot.json` — no API server is required to run or deploy. An optional FastAPI backend (`backend/`, port 8000) remains as the snapshot source for regeneration/contracts. Standard install/run/lint commands live in `README.md`, `frontend/package.json`, and `.cursor/skills/run-dev-server/SKILL.md` — use those; the notes below only cover non-obvious caveats.
 
 ### Running
-- Start the backend **before** the frontend — the Vite proxy forwards `/api` to `http://localhost:8000`, so the UI 502s if the backend is down. See `.cursor/skills/run-dev-server/SKILL.md`.
-- Always use `backend/.venv` for Python (create with `python3 -m venv backend/.venv`; run with `backend/.venv/bin/uvicorn app.main:app --reload --port 8000`). Never use system `python`/`pip`.
-- Frontend dev server is `npm run dev` in `frontend/` (do not use `npm run build` for local dev).
+- Frontend only: `npm run dev` in `frontend/` (do not use `npm run build` for local dev). No backend needed.
+- Optional backend: always use `backend/.venv` for Python (create with `python3 -m venv backend/.venv`; run with `backend/.venv/bin/uvicorn app.main:app --reload --port 8000`). Never use system `python`/`pip`.
+- Vercel: root `vercel.json` builds `frontend/` as a static SPA.
 
 ### Data source (important)
-- **No live API.** All tennis data is hardcoded in `backend/app/tennis_data.py` as a snapshot from 15 July 2026 (post-Wimbledon rankings and results). No network egress is required for the backend to serve data.
-- To update data, edit `tennis_data.py` directly and restart the backend.
+- **No live API.** The UI reads `frontend/src/data/snapshot.json` (15 July 2026 post-Wimbledon rankings and results). No network egress is required.
+- Canonical edit source is still `backend/app/tennis_data.py`; regenerate the frontend snapshot with the script in `README.md` after changes.
 
 ### Lint / test / build
 - Frontend lint: `npm run lint` (oxlint) in `frontend/`. Production build check: `npm run build` (`tsc -b && vite build`).
